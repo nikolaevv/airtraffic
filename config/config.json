@@ -1,1 +1,18 @@
-{}
+{
+  "app": {
+    "network": "tcp",
+    "host": "",
+    "port": "8080"
+  },
+  "db": {
+    "host": "db",
+    "port": "5432",
+    "driver": "postgres",
+    "name": "airtraffic",
+    "pass": "postgres",
+    "user": "postgres",
+    "maxLifetime": 3,
+    "maxOpenConns": 10,
+    "maxIdleConns": 10
+  }
+}

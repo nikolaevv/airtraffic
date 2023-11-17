@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package airtraffic;
+
+option go_package = "internal/service/grpc/pb";
+
+service AirTrafficService {
+  rpc GetFlights(GetFlightsRq) returns (GetFlightsRs) {}
+}
+
+message GetFlightsRq {
+  string date = 1;
+}
+
+message GetFlightsRs {
+  repeated Flight flights = 1;
+}
+
+message Flight {
+  int64 id = 1;
+  string scheduled_departure = 2;
+  string scheduled_arrival = 3;
+  //string departure_airport = 4;
+  //string arrival_airport = 5;
+  string status = 6;
+  string aircraft_code = 7;
+  string actual_departure = 8;
+}
