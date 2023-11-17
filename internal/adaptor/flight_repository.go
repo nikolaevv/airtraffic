@@ -28,7 +28,7 @@ func (f *FlightRepository) GetList(ctx context.Context) ([]model.Flight, error) 
 
 	for rows.Next() {
 		var flight model.Flight
-		if err := rows.Scan(&flight.ID, &flight.ScheduledDeparture, &flight.ScheduledArrival, &flight.Status, &flight.AircraftCode, &flight.ActualDeparture, &flight.ActualArrival); err != nil {
+		if err := rows.Scan(&flight.ID, &flight.ScheduledDeparture, &flight.ScheduledArrival, &flight.Status, &flight.AircraftID, &flight.ActualDeparture, &flight.ActualArrival); err != nil {
 			return nil, errors.WithStack(err)
 		}
 
