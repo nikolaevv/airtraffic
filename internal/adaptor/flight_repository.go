@@ -20,7 +20,7 @@ type FlightRepository struct {
 func (f *FlightRepository) GetList(ctx context.Context) ([]model.Flight, error) {
 	flights := make([]model.Flight, 0)
 
-	var query = "select id, scheduled_departure, scheduled_arrival, status, aircraft_code, actual_departure, actual_arrival from flights"
+	var query = "select id, scheduled_departure, scheduled_arrival, status, aircraft_id, actual_departure, actual_arrival from flights"
 	rows, err := f.db.Query(ctx, query)
 	if err != nil {
 		return nil, errors.WithStack(err)

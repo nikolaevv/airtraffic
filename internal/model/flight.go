@@ -20,7 +20,7 @@ type Flight struct {
 	DepartureAirport   Airport      `json:"departure_airport"`
 	ArrivalAirport     Airport      `json:"arrival_airport"`
 	Status             FlightStatus `json:"status"`
-	AircraftCode       string       `json:"aircraft_code"`
+	AircraftID         int          `json:"aircraft_id"`
 	ActualDeparture    time.Time    `json:"actual_departure"`
 	ActualArrival      time.Time    `json:"actual_arrival"`
 }

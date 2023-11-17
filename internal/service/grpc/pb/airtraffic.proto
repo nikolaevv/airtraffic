@@ -27,7 +27,7 @@ message Flight {
   Airport departure_airport = 4;
   Airport arrival_airport = 5;
   string status = 6;
-  string aircraft_code = 7;
+  int64 aircraft_id = 7;
   string actual_departure = 8;
 }
 

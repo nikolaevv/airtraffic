@@ -34,7 +34,7 @@ func (s Service) GetFlights(ctx context.Context, req *pb.GetFlightsRq) (*pb.GetF
 			ScheduledDeparture: flight.ScheduledDeparture.Format("2006-01-02 15:04:05"),
 			ScheduledArrival:   flight.ScheduledArrival.Format("2006-01-02 15:04:05"),
 			Status:             string(flight.Status),
-			AircraftCode:       flight.AircraftCode,
+			AircraftId:         int64(flight.AircraftID),
 			ActualDeparture:    flight.ActualDeparture.Format("2006-01-02 15:04:05"),
 		})
 	}
