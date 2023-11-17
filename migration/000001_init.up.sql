@@ -1,4 +1,4 @@
-CREATE TYPE if not exists flight_status AS ENUM ('SCHEDULED', 'ONTIME', 'DELAYED', 'CANCELLED', 'DEPARTED', 'ARRIVED');
+create type flight_status AS ENUM ('SCHEDULED', 'ONTIME', 'DELAYED', 'CANCELLED', 'DEPARTED', 'ARRIVED');
 
 create table if not exists passengers (
     id serial primary key,
@@ -13,7 +13,7 @@ create table if not exists airports (
     city varchar(255) not null,
     longitude float not null,
     latitude float not null,
-    timezone varchar(255),
+    timezone varchar(255)
 );
 
 create table if not exists aircrafts (
@@ -34,7 +34,7 @@ create table if not exists flights (
     departure_airport_id int references airports(id),
     arrival_airport_id int references airports(id),
     status flight_status not null,
-    aircraft_id varchar(4) references aircrafts(id),
+    aircraft_id int references aircrafts(id),
     actual_departure timestamp,
     actual_arrival timestamp
 );
@@ -54,7 +54,7 @@ create table if not exists bookings (
 create table if not exists tickets (
     id serial primary key,
     booking_id int references bookings(id),
-    passenger_id int references passengers(id),
+    passenger_id int references passengers(id)
 );
 
 create table if not exists ticket_flights (
