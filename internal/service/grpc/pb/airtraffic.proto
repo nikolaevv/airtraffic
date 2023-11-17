@@ -6,6 +6,10 @@ option go_package = "internal/service/grpc/pb";
 
 service AirTrafficService {
   rpc GetFlights(GetFlightsRq) returns (GetFlightsRs) {}
+
+  rpc GetBookings(GetBookingsRq) returns (Booking) {}
+  rpc BookTickets(BookTicketsRq) returns (Booking) {}
+  rpc CreateBoardingPass(CreateBoardingPassRq) returns (BoardingPass) {}
 }
 
 message GetFlightsRq {
@@ -20,9 +24,72 @@ message Flight {
   int64 id = 1;
   string scheduled_departure = 2;
   string scheduled_arrival = 3;
-  //string departure_airport = 4;
-  //string arrival_airport = 5;
+  Airport departure_airport = 4;
+  Airport arrival_airport = 5;
   string status = 6;
-  string aircraft_code = 7;
-  string actual_departure = 8;
+  string Aircraft = 7;
+  string aircraft_code = 8;
+  string actual_departure = 9;
+}
+
+message Airport {
+  string code = 1;
+  string name = 2;
+  string city = 3;
+  float longitude = 4;
+  float latitude = 5;
+  string timezone = 6;
+}
+
+message Aircraft {
+  string code = 1;
+  string model = 2;
+  repeated Seat seats = 3;
+}
+
+message Seat {
+  int64 id = 1;
+}
+
+message GetBookingsRq {
+  int64 id = 1;
+}
+
+message Booking {
+  int64 id = 1;
+  string created_at = 2;
+  float total_amount = 3;
+  repeated Ticket tickets = 4;
+}
+
+message Ticket {
+  int64 id = 1;
+  Passenger passenger = 2;
+  repeated TicketFlight flights = 3;
+}
+
+message TicketFlight {
+  int64 id = 1;
+  Flight flight = 2;
+  float amount = 3;
+}
+
+message BoardingPass {
+  int64 id = 1;
+  Seat seat = 2;
+}
+
+message Passenger {
+  int64 id = 1;
+  string name = 2;
+  string email = 3;
+}
+
+message BookTicketsRq {
+  repeated Ticket tickets = 1;
+}
+
+message CreateBoardingPassRq {
+  int64 ticket_flight_id = 1;
+  int64 seat_id = 2;
 }
