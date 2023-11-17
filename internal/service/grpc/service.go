@@ -10,6 +10,10 @@ import (
 	"github.com/pkg/errors"
 )
 
+const (
+	defaultDateFormat = "2006-01-02 15:04:05"
+)
+
 func Init(cont *adaptor.Container) pb.AirTrafficServiceServer {
 	return &Service{cont: cont}
 }
@@ -31,11 +35,11 @@ func (s Service) GetFlights(ctx context.Context, req *pb.GetFlightsRq) (*pb.GetF
 	for _, flight := range flights {
 		res.Flights = append(res.Flights, &pb.Flight{
 			Id:                 int64(flight.ID),
-			ScheduledDeparture: flight.ScheduledDeparture.Format("2006-01-02 15:04:05"),
-			ScheduledArrival:   flight.ScheduledArrival.Format("2006-01-02 15:04:05"),
+			ScheduledDeparture: flight.ScheduledDeparture.Format(defaultDateFormat),
+			ScheduledArrival:   flight.ScheduledArrival.Format(defaultDateFormat),
 			Status:             string(flight.Status),
 			AircraftId:         int64(flight.AircraftID),
-			ActualDeparture:    flight.ActualDeparture.Format("2006-01-02 15:04:05"),
+			ActualDeparture:    flight.ActualDeparture.Format(defaultDateFormat),
 		})
 	}
 
