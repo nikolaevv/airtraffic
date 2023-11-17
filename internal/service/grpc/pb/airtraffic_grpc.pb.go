@@ -23,6 +23,9 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AirTrafficServiceClient interface {
 	GetFlights(ctx context.Context, in *GetFlightsRq, opts ...grpc.CallOption) (*GetFlightsRs, error)
+	GetBookings(ctx context.Context, in *GetBookingsRq, opts ...grpc.CallOption) (*Booking, error)
+	BookTickets(ctx context.Context, in *BookTicketsRq, opts ...grpc.CallOption) (*Booking, error)
+	CreateBoardingPass(ctx context.Context, in *CreateBoardingPassRq, opts ...grpc.CallOption) (*BoardingPass, error)
 }
 
 type airTrafficServiceClient struct {
@@ -42,11 +45,41 @@ func (c *airTrafficServiceClient) GetFlights(ctx context.Context, in *GetFlights
 	return out, nil
 }
 
+func (c *airTrafficServiceClient) GetBookings(ctx context.Context, in *GetBookingsRq, opts ...grpc.CallOption) (*Booking, error) {
+	out := new(Booking)
+	err := c.cc.Invoke(ctx, "/airtraffic.AirTrafficService/GetBookings", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *airTrafficServiceClient) BookTickets(ctx context.Context, in *BookTicketsRq, opts ...grpc.CallOption) (*Booking, error) {
+	out := new(Booking)
+	err := c.cc.Invoke(ctx, "/airtraffic.AirTrafficService/BookTickets", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *airTrafficServiceClient) CreateBoardingPass(ctx context.Context, in *CreateBoardingPassRq, opts ...grpc.CallOption) (*BoardingPass, error) {
+	out := new(BoardingPass)
+	err := c.cc.Invoke(ctx, "/airtraffic.AirTrafficService/CreateBoardingPass", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AirTrafficServiceServer is the server API for AirTrafficService service.
 // All implementations must embed UnimplementedAirTrafficServiceServer
 // for forward compatibility
 type AirTrafficServiceServer interface {
 	GetFlights(context.Context, *GetFlightsRq) (*GetFlightsRs, error)
+	GetBookings(context.Context, *GetBookingsRq) (*Booking, error)
+	BookTickets(context.Context, *BookTicketsRq) (*Booking, error)
+	CreateBoardingPass(context.Context, *CreateBoardingPassRq) (*BoardingPass, error)
 	mustEmbedUnimplementedAirTrafficServiceServer()
 }
 
@@ -56,6 +89,15 @@ type UnimplementedAirTrafficServiceServer struct {
 
 func (UnimplementedAirTrafficServiceServer) GetFlights(context.Context, *GetFlightsRq) (*GetFlightsRs, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetFlights not implemented")
+}
+func (UnimplementedAirTrafficServiceServer) GetBookings(context.Context, *GetBookingsRq) (*Booking, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetBookings not implemented")
+}
+func (UnimplementedAirTrafficServiceServer) BookTickets(context.Context, *BookTicketsRq) (*Booking, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method BookTickets not implemented")
+}
+func (UnimplementedAirTrafficServiceServer) CreateBoardingPass(context.Context, *CreateBoardingPassRq) (*BoardingPass, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateBoardingPass not implemented")
 }
 func (UnimplementedAirTrafficServiceServer) mustEmbedUnimplementedAirTrafficServiceServer() {}
 
@@ -88,6 +130,60 @@ func _AirTrafficService_GetFlights_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AirTrafficService_GetBookings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetBookingsRq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AirTrafficServiceServer).GetBookings(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/airtraffic.AirTrafficService/GetBookings",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AirTrafficServiceServer).GetBookings(ctx, req.(*GetBookingsRq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AirTrafficService_BookTickets_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BookTicketsRq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AirTrafficServiceServer).BookTickets(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/airtraffic.AirTrafficService/BookTickets",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AirTrafficServiceServer).BookTickets(ctx, req.(*BookTicketsRq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AirTrafficService_CreateBoardingPass_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateBoardingPassRq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AirTrafficServiceServer).CreateBoardingPass(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/airtraffic.AirTrafficService/CreateBoardingPass",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AirTrafficServiceServer).CreateBoardingPass(ctx, req.(*CreateBoardingPassRq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AirTrafficService_ServiceDesc is the grpc.ServiceDesc for AirTrafficService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -98,6 +194,18 @@ var AirTrafficService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetFlights",
 			Handler:    _AirTrafficService_GetFlights_Handler,
+		},
+		{
+			MethodName: "GetBookings",
+			Handler:    _AirTrafficService_GetBookings_Handler,
+		},
+		{
+			MethodName: "BookTickets",
+			Handler:    _AirTrafficService_BookTickets_Handler,
+		},
+		{
+			MethodName: "CreateBoardingPass",
+			Handler:    _AirTrafficService_CreateBoardingPass_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

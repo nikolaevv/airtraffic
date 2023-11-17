@@ -119,14 +119,15 @@ type Flight struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Id                 int64  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	ScheduledDeparture string `protobuf:"bytes,2,opt,name=scheduled_departure,json=scheduledDeparture,proto3" json:"scheduled_departure,omitempty"`
-	ScheduledArrival   string `protobuf:"bytes,3,opt,name=scheduled_arrival,json=scheduledArrival,proto3" json:"scheduled_arrival,omitempty"`
-	// string departure_airport = 4;
-	// string arrival_airport = 5;
-	Status          string `protobuf:"bytes,6,opt,name=status,proto3" json:"status,omitempty"`
-	AircraftCode    string `protobuf:"bytes,7,opt,name=aircraft_code,json=aircraftCode,proto3" json:"aircraft_code,omitempty"`
-	ActualDeparture string `protobuf:"bytes,8,opt,name=actual_departure,json=actualDeparture,proto3" json:"actual_departure,omitempty"`
+	Id                 int64    `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	ScheduledDeparture string   `protobuf:"bytes,2,opt,name=scheduled_departure,json=scheduledDeparture,proto3" json:"scheduled_departure,omitempty"`
+	ScheduledArrival   string   `protobuf:"bytes,3,opt,name=scheduled_arrival,json=scheduledArrival,proto3" json:"scheduled_arrival,omitempty"`
+	DepartureAirport   *Airport `protobuf:"bytes,4,opt,name=departure_airport,json=departureAirport,proto3" json:"departure_airport,omitempty"`
+	ArrivalAirport     *Airport `protobuf:"bytes,5,opt,name=arrival_airport,json=arrivalAirport,proto3" json:"arrival_airport,omitempty"`
+	Status             string   `protobuf:"bytes,6,opt,name=status,proto3" json:"status,omitempty"`
+	Aircraft           string   `protobuf:"bytes,7,opt,name=Aircraft,proto3" json:"Aircraft,omitempty"`
+	AircraftCode       string   `protobuf:"bytes,8,opt,name=aircraft_code,json=aircraftCode,proto3" json:"aircraft_code,omitempty"`
+	ActualDeparture    string   `protobuf:"bytes,9,opt,name=actual_departure,json=actualDeparture,proto3" json:"actual_departure,omitempty"`
 }
 
 func (x *Flight) Reset() {
@@ -182,9 +183,30 @@ func (x *Flight) GetScheduledArrival() string {
 	return ""
 }
 
+func (x *Flight) GetDepartureAirport() *Airport {
+	if x != nil {
+		return x.DepartureAirport
+	}
+	return nil
+}
+
+func (x *Flight) GetArrivalAirport() *Airport {
+	if x != nil {
+		return x.ArrivalAirport
+	}
+	return nil
+}
+
 func (x *Flight) GetStatus() string {
 	if x != nil {
 		return x.Status
+	}
+	return ""
+}
+
+func (x *Flight) GetAircraft() string {
+	if x != nil {
+		return x.Aircraft
 	}
 	return ""
 }
@@ -203,6 +225,667 @@ func (x *Flight) GetActualDeparture() string {
 	return ""
 }
 
+type Airport struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Code      string  `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`
+	Name      string  `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	City      string  `protobuf:"bytes,3,opt,name=city,proto3" json:"city,omitempty"`
+	Longitude float32 `protobuf:"fixed32,4,opt,name=longitude,proto3" json:"longitude,omitempty"`
+	Latitude  float32 `protobuf:"fixed32,5,opt,name=latitude,proto3" json:"latitude,omitempty"`
+	Timezone  string  `protobuf:"bytes,6,opt,name=timezone,proto3" json:"timezone,omitempty"`
+}
+
+func (x *Airport) Reset() {
+	*x = Airport{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_internal_service_grpc_pb_airtraffic_proto_msgTypes[3]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *Airport) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Airport) ProtoMessage() {}
+
+func (x *Airport) ProtoReflect() protoreflect.Message {
+	mi := &file_internal_service_grpc_pb_airtraffic_proto_msgTypes[3]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Airport.ProtoReflect.Descriptor instead.
+func (*Airport) Descriptor() ([]byte, []int) {
+	return file_internal_service_grpc_pb_airtraffic_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *Airport) GetCode() string {
+	if x != nil {
+		return x.Code
+	}
+	return ""
+}
+
+func (x *Airport) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *Airport) GetCity() string {
+	if x != nil {
+		return x.City
+	}
+	return ""
+}
+
+func (x *Airport) GetLongitude() float32 {
+	if x != nil {
+		return x.Longitude
+	}
+	return 0
+}
+
+func (x *Airport) GetLatitude() float32 {
+	if x != nil {
+		return x.Latitude
+	}
+	return 0
+}
+
+func (x *Airport) GetTimezone() string {
+	if x != nil {
+		return x.Timezone
+	}
+	return ""
+}
+
+type Aircraft struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Code  string  `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`
+	Model string  `protobuf:"bytes,2,opt,name=model,proto3" json:"model,omitempty"`
+	Seats []*Seat `protobuf:"bytes,3,rep,name=seats,proto3" json:"seats,omitempty"`
+}
+
+func (x *Aircraft) Reset() {
+	*x = Aircraft{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_internal_service_grpc_pb_airtraffic_proto_msgTypes[4]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *Aircraft) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Aircraft) ProtoMessage() {}
+
+func (x *Aircraft) ProtoReflect() protoreflect.Message {
+	mi := &file_internal_service_grpc_pb_airtraffic_proto_msgTypes[4]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Aircraft.ProtoReflect.Descriptor instead.
+func (*Aircraft) Descriptor() ([]byte, []int) {
+	return file_internal_service_grpc_pb_airtraffic_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *Aircraft) GetCode() string {
+	if x != nil {
+		return x.Code
+	}
+	return ""
+}
+
+func (x *Aircraft) GetModel() string {
+	if x != nil {
+		return x.Model
+	}
+	return ""
+}
+
+func (x *Aircraft) GetSeats() []*Seat {
+	if x != nil {
+		return x.Seats
+	}
+	return nil
+}
+
+type Seat struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+}
+
+func (x *Seat) Reset() {
+	*x = Seat{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_internal_service_grpc_pb_airtraffic_proto_msgTypes[5]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *Seat) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Seat) ProtoMessage() {}
+
+func (x *Seat) ProtoReflect() protoreflect.Message {
+	mi := &file_internal_service_grpc_pb_airtraffic_proto_msgTypes[5]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Seat.ProtoReflect.Descriptor instead.
+func (*Seat) Descriptor() ([]byte, []int) {
+	return file_internal_service_grpc_pb_airtraffic_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *Seat) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+type GetBookingsRq struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+}
+
+func (x *GetBookingsRq) Reset() {
+	*x = GetBookingsRq{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_internal_service_grpc_pb_airtraffic_proto_msgTypes[6]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetBookingsRq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetBookingsRq) ProtoMessage() {}
+
+func (x *GetBookingsRq) ProtoReflect() protoreflect.Message {
+	mi := &file_internal_service_grpc_pb_airtraffic_proto_msgTypes[6]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetBookingsRq.ProtoReflect.Descriptor instead.
+func (*GetBookingsRq) Descriptor() ([]byte, []int) {
+	return file_internal_service_grpc_pb_airtraffic_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *GetBookingsRq) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+type Booking struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Id          int64     `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	CreatedAt   string    `protobuf:"bytes,2,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	TotalAmount float32   `protobuf:"fixed32,3,opt,name=total_amount,json=totalAmount,proto3" json:"total_amount,omitempty"`
+	Tickets     []*Ticket `protobuf:"bytes,4,rep,name=tickets,proto3" json:"tickets,omitempty"`
+}
+
+func (x *Booking) Reset() {
+	*x = Booking{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_internal_service_grpc_pb_airtraffic_proto_msgTypes[7]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *Booking) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Booking) ProtoMessage() {}
+
+func (x *Booking) ProtoReflect() protoreflect.Message {
+	mi := &file_internal_service_grpc_pb_airtraffic_proto_msgTypes[7]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Booking.ProtoReflect.Descriptor instead.
+func (*Booking) Descriptor() ([]byte, []int) {
+	return file_internal_service_grpc_pb_airtraffic_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *Booking) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *Booking) GetCreatedAt() string {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return ""
+}
+
+func (x *Booking) GetTotalAmount() float32 {
+	if x != nil {
+		return x.TotalAmount
+	}
+	return 0
+}
+
+func (x *Booking) GetTickets() []*Ticket {
+	if x != nil {
+		return x.Tickets
+	}
+	return nil
+}
+
+type Ticket struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Id        int64           `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Passenger *Passenger      `protobuf:"bytes,2,opt,name=passenger,proto3" json:"passenger,omitempty"`
+	Flights   []*TicketFlight `protobuf:"bytes,3,rep,name=flights,proto3" json:"flights,omitempty"`
+}
+
+func (x *Ticket) Reset() {
+	*x = Ticket{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_internal_service_grpc_pb_airtraffic_proto_msgTypes[8]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *Ticket) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Ticket) ProtoMessage() {}
+
+func (x *Ticket) ProtoReflect() protoreflect.Message {
+	mi := &file_internal_service_grpc_pb_airtraffic_proto_msgTypes[8]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Ticket.ProtoReflect.Descriptor instead.
+func (*Ticket) Descriptor() ([]byte, []int) {
+	return file_internal_service_grpc_pb_airtraffic_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *Ticket) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *Ticket) GetPassenger() *Passenger {
+	if x != nil {
+		return x.Passenger
+	}
+	return nil
+}
+
+func (x *Ticket) GetFlights() []*TicketFlight {
+	if x != nil {
+		return x.Flights
+	}
+	return nil
+}
+
+type TicketFlight struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Id     int64   `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Flight *Flight `protobuf:"bytes,2,opt,name=flight,proto3" json:"flight,omitempty"`
+	Amount float32 `protobuf:"fixed32,3,opt,name=amount,proto3" json:"amount,omitempty"`
+}
+
+func (x *TicketFlight) Reset() {
+	*x = TicketFlight{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_internal_service_grpc_pb_airtraffic_proto_msgTypes[9]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *TicketFlight) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TicketFlight) ProtoMessage() {}
+
+func (x *TicketFlight) ProtoReflect() protoreflect.Message {
+	mi := &file_internal_service_grpc_pb_airtraffic_proto_msgTypes[9]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TicketFlight.ProtoReflect.Descriptor instead.
+func (*TicketFlight) Descriptor() ([]byte, []int) {
+	return file_internal_service_grpc_pb_airtraffic_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *TicketFlight) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *TicketFlight) GetFlight() *Flight {
+	if x != nil {
+		return x.Flight
+	}
+	return nil
+}
+
+func (x *TicketFlight) GetAmount() float32 {
+	if x != nil {
+		return x.Amount
+	}
+	return 0
+}
+
+type BoardingPass struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Id   int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Seat *Seat `protobuf:"bytes,2,opt,name=seat,proto3" json:"seat,omitempty"`
+}
+
+func (x *BoardingPass) Reset() {
+	*x = BoardingPass{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_internal_service_grpc_pb_airtraffic_proto_msgTypes[10]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *BoardingPass) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BoardingPass) ProtoMessage() {}
+
+func (x *BoardingPass) ProtoReflect() protoreflect.Message {
+	mi := &file_internal_service_grpc_pb_airtraffic_proto_msgTypes[10]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BoardingPass.ProtoReflect.Descriptor instead.
+func (*BoardingPass) Descriptor() ([]byte, []int) {
+	return file_internal_service_grpc_pb_airtraffic_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *BoardingPass) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *BoardingPass) GetSeat() *Seat {
+	if x != nil {
+		return x.Seat
+	}
+	return nil
+}
+
+type Passenger struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Id    int64  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name  string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Email string `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`
+}
+
+func (x *Passenger) Reset() {
+	*x = Passenger{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_internal_service_grpc_pb_airtraffic_proto_msgTypes[11]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *Passenger) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Passenger) ProtoMessage() {}
+
+func (x *Passenger) ProtoReflect() protoreflect.Message {
+	mi := &file_internal_service_grpc_pb_airtraffic_proto_msgTypes[11]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Passenger.ProtoReflect.Descriptor instead.
+func (*Passenger) Descriptor() ([]byte, []int) {
+	return file_internal_service_grpc_pb_airtraffic_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *Passenger) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *Passenger) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *Passenger) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
+type BookTicketsRq struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Tickets []*Ticket `protobuf:"bytes,1,rep,name=tickets,proto3" json:"tickets,omitempty"`
+}
+
+func (x *BookTicketsRq) Reset() {
+	*x = BookTicketsRq{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_internal_service_grpc_pb_airtraffic_proto_msgTypes[12]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *BookTicketsRq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BookTicketsRq) ProtoMessage() {}
+
+func (x *BookTicketsRq) ProtoReflect() protoreflect.Message {
+	mi := &file_internal_service_grpc_pb_airtraffic_proto_msgTypes[12]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BookTicketsRq.ProtoReflect.Descriptor instead.
+func (*BookTicketsRq) Descriptor() ([]byte, []int) {
+	return file_internal_service_grpc_pb_airtraffic_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *BookTicketsRq) GetTickets() []*Ticket {
+	if x != nil {
+		return x.Tickets
+	}
+	return nil
+}
+
+type CreateBoardingPassRq struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	TicketFlightId int64 `protobuf:"varint,1,opt,name=ticket_flight_id,json=ticketFlightId,proto3" json:"ticket_flight_id,omitempty"`
+	SeatId         int64 `protobuf:"varint,2,opt,name=seat_id,json=seatId,proto3" json:"seat_id,omitempty"`
+}
+
+func (x *CreateBoardingPassRq) Reset() {
+	*x = CreateBoardingPassRq{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_internal_service_grpc_pb_airtraffic_proto_msgTypes[13]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *CreateBoardingPassRq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateBoardingPassRq) ProtoMessage() {}
+
+func (x *CreateBoardingPassRq) ProtoReflect() protoreflect.Message {
+	mi := &file_internal_service_grpc_pb_airtraffic_proto_msgTypes[13]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateBoardingPassRq.ProtoReflect.Descriptor instead.
+func (*CreateBoardingPassRq) Descriptor() ([]byte, []int) {
+	return file_internal_service_grpc_pb_airtraffic_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *CreateBoardingPassRq) GetTicketFlightId() int64 {
+	if x != nil {
+		return x.TicketFlightId
+	}
+	return 0
+}
+
+func (x *CreateBoardingPassRq) GetSeatId() int64 {
+	if x != nil {
+		return x.SeatId
+	}
+	return 0
+}
+
 var File_internal_service_grpc_pb_airtraffic_proto protoreflect.FileDescriptor
 
 var file_internal_service_grpc_pb_airtraffic_proto_rawDesc = []byte{
@@ -215,7 +898,7 @@ var file_internal_service_grpc_pb_airtraffic_proto_rawDesc = []byte{
 	0x65, 0x74, 0x46, 0x6c, 0x69, 0x67, 0x68, 0x74, 0x73, 0x52, 0x73, 0x12, 0x2c, 0x0a, 0x07, 0x66,
 	0x6c, 0x69, 0x67, 0x68, 0x74, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x12, 0x2e, 0x61,
 	0x69, 0x72, 0x74, 0x72, 0x61, 0x66, 0x66, 0x69, 0x63, 0x2e, 0x46, 0x6c, 0x69, 0x67, 0x68, 0x74,
-	0x52, 0x07, 0x66, 0x6c, 0x69, 0x67, 0x68, 0x74, 0x73, 0x22, 0xde, 0x01, 0x0a, 0x06, 0x46, 0x6c,
+	0x52, 0x07, 0x66, 0x6c, 0x69, 0x67, 0x68, 0x74, 0x73, 0x22, 0xfa, 0x02, 0x0a, 0x06, 0x46, 0x6c,
 	0x69, 0x67, 0x68, 0x74, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03,
 	0x52, 0x02, 0x69, 0x64, 0x12, 0x2f, 0x0a, 0x13, 0x73, 0x63, 0x68, 0x65, 0x64, 0x75, 0x6c, 0x65,
 	0x64, 0x5f, 0x64, 0x65, 0x70, 0x61, 0x72, 0x74, 0x75, 0x72, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28,
@@ -223,21 +906,105 @@ var file_internal_service_grpc_pb_airtraffic_proto_rawDesc = []byte{
 	0x72, 0x74, 0x75, 0x72, 0x65, 0x12, 0x2b, 0x0a, 0x11, 0x73, 0x63, 0x68, 0x65, 0x64, 0x75, 0x6c,
 	0x65, 0x64, 0x5f, 0x61, 0x72, 0x72, 0x69, 0x76, 0x61, 0x6c, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09,
 	0x52, 0x10, 0x73, 0x63, 0x68, 0x65, 0x64, 0x75, 0x6c, 0x65, 0x64, 0x41, 0x72, 0x72, 0x69, 0x76,
-	0x61, 0x6c, 0x12, 0x16, 0x0a, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x18, 0x06, 0x20, 0x01,
-	0x28, 0x09, 0x52, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x12, 0x23, 0x0a, 0x0d, 0x61, 0x69,
-	0x72, 0x63, 0x72, 0x61, 0x66, 0x74, 0x5f, 0x63, 0x6f, 0x64, 0x65, 0x18, 0x07, 0x20, 0x01, 0x28,
-	0x09, 0x52, 0x0c, 0x61, 0x69, 0x72, 0x63, 0x72, 0x61, 0x66, 0x74, 0x43, 0x6f, 0x64, 0x65, 0x12,
-	0x29, 0x0a, 0x10, 0x61, 0x63, 0x74, 0x75, 0x61, 0x6c, 0x5f, 0x64, 0x65, 0x70, 0x61, 0x72, 0x74,
-	0x75, 0x72, 0x65, 0x18, 0x08, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0f, 0x61, 0x63, 0x74, 0x75, 0x61,
-	0x6c, 0x44, 0x65, 0x70, 0x61, 0x72, 0x74, 0x75, 0x72, 0x65, 0x32, 0x57, 0x0a, 0x11, 0x41, 0x69,
-	0x72, 0x54, 0x72, 0x61, 0x66, 0x66, 0x69, 0x63, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x12,
-	0x42, 0x0a, 0x0a, 0x47, 0x65, 0x74, 0x46, 0x6c, 0x69, 0x67, 0x68, 0x74, 0x73, 0x12, 0x18, 0x2e,
-	0x61, 0x69, 0x72, 0x74, 0x72, 0x61, 0x66, 0x66, 0x69, 0x63, 0x2e, 0x47, 0x65, 0x74, 0x46, 0x6c,
-	0x69, 0x67, 0x68, 0x74, 0x73, 0x52, 0x71, 0x1a, 0x18, 0x2e, 0x61, 0x69, 0x72, 0x74, 0x72, 0x61,
-	0x66, 0x66, 0x69, 0x63, 0x2e, 0x47, 0x65, 0x74, 0x46, 0x6c, 0x69, 0x67, 0x68, 0x74, 0x73, 0x52,
-	0x73, 0x22, 0x00, 0x42, 0x1a, 0x5a, 0x18, 0x69, 0x6e, 0x74, 0x65, 0x72, 0x6e, 0x61, 0x6c, 0x2f,
-	0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x2f, 0x67, 0x72, 0x70, 0x63, 0x2f, 0x70, 0x62, 0x62,
-	0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x61, 0x6c, 0x12, 0x40, 0x0a, 0x11, 0x64, 0x65, 0x70, 0x61, 0x72, 0x74, 0x75, 0x72, 0x65, 0x5f,
+	0x61, 0x69, 0x72, 0x70, 0x6f, 0x72, 0x74, 0x18, 0x04, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x13, 0x2e,
+	0x61, 0x69, 0x72, 0x74, 0x72, 0x61, 0x66, 0x66, 0x69, 0x63, 0x2e, 0x41, 0x69, 0x72, 0x70, 0x6f,
+	0x72, 0x74, 0x52, 0x10, 0x64, 0x65, 0x70, 0x61, 0x72, 0x74, 0x75, 0x72, 0x65, 0x41, 0x69, 0x72,
+	0x70, 0x6f, 0x72, 0x74, 0x12, 0x3c, 0x0a, 0x0f, 0x61, 0x72, 0x72, 0x69, 0x76, 0x61, 0x6c, 0x5f,
+	0x61, 0x69, 0x72, 0x70, 0x6f, 0x72, 0x74, 0x18, 0x05, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x13, 0x2e,
+	0x61, 0x69, 0x72, 0x74, 0x72, 0x61, 0x66, 0x66, 0x69, 0x63, 0x2e, 0x41, 0x69, 0x72, 0x70, 0x6f,
+	0x72, 0x74, 0x52, 0x0e, 0x61, 0x72, 0x72, 0x69, 0x76, 0x61, 0x6c, 0x41, 0x69, 0x72, 0x70, 0x6f,
+	0x72, 0x74, 0x12, 0x16, 0x0a, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x18, 0x06, 0x20, 0x01,
+	0x28, 0x09, 0x52, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x12, 0x1a, 0x0a, 0x08, 0x41, 0x69,
+	0x72, 0x63, 0x72, 0x61, 0x66, 0x74, 0x18, 0x07, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x41, 0x69,
+	0x72, 0x63, 0x72, 0x61, 0x66, 0x74, 0x12, 0x23, 0x0a, 0x0d, 0x61, 0x69, 0x72, 0x63, 0x72, 0x61,
+	0x66, 0x74, 0x5f, 0x63, 0x6f, 0x64, 0x65, 0x18, 0x08, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0c, 0x61,
+	0x69, 0x72, 0x63, 0x72, 0x61, 0x66, 0x74, 0x43, 0x6f, 0x64, 0x65, 0x12, 0x29, 0x0a, 0x10, 0x61,
+	0x63, 0x74, 0x75, 0x61, 0x6c, 0x5f, 0x64, 0x65, 0x70, 0x61, 0x72, 0x74, 0x75, 0x72, 0x65, 0x18,
+	0x09, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0f, 0x61, 0x63, 0x74, 0x75, 0x61, 0x6c, 0x44, 0x65, 0x70,
+	0x61, 0x72, 0x74, 0x75, 0x72, 0x65, 0x22, 0x9b, 0x01, 0x0a, 0x07, 0x41, 0x69, 0x72, 0x70, 0x6f,
+	0x72, 0x74, 0x12, 0x12, 0x0a, 0x04, 0x63, 0x6f, 0x64, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09,
+	0x52, 0x04, 0x63, 0x6f, 0x64, 0x65, 0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x02,
+	0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x12, 0x0a, 0x04, 0x63, 0x69,
+	0x74, 0x79, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x63, 0x69, 0x74, 0x79, 0x12, 0x1c,
+	0x0a, 0x09, 0x6c, 0x6f, 0x6e, 0x67, 0x69, 0x74, 0x75, 0x64, 0x65, 0x18, 0x04, 0x20, 0x01, 0x28,
+	0x02, 0x52, 0x09, 0x6c, 0x6f, 0x6e, 0x67, 0x69, 0x74, 0x75, 0x64, 0x65, 0x12, 0x1a, 0x0a, 0x08,
+	0x6c, 0x61, 0x74, 0x69, 0x74, 0x75, 0x64, 0x65, 0x18, 0x05, 0x20, 0x01, 0x28, 0x02, 0x52, 0x08,
+	0x6c, 0x61, 0x74, 0x69, 0x74, 0x75, 0x64, 0x65, 0x12, 0x1a, 0x0a, 0x08, 0x74, 0x69, 0x6d, 0x65,
+	0x7a, 0x6f, 0x6e, 0x65, 0x18, 0x06, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x74, 0x69, 0x6d, 0x65,
+	0x7a, 0x6f, 0x6e, 0x65, 0x22, 0x5c, 0x0a, 0x08, 0x41, 0x69, 0x72, 0x63, 0x72, 0x61, 0x66, 0x74,
+	0x12, 0x12, 0x0a, 0x04, 0x63, 0x6f, 0x64, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04,
+	0x63, 0x6f, 0x64, 0x65, 0x12, 0x14, 0x0a, 0x05, 0x6d, 0x6f, 0x64, 0x65, 0x6c, 0x18, 0x02, 0x20,
+	0x01, 0x28, 0x09, 0x52, 0x05, 0x6d, 0x6f, 0x64, 0x65, 0x6c, 0x12, 0x26, 0x0a, 0x05, 0x73, 0x65,
+	0x61, 0x74, 0x73, 0x18, 0x03, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x10, 0x2e, 0x61, 0x69, 0x72, 0x74,
+	0x72, 0x61, 0x66, 0x66, 0x69, 0x63, 0x2e, 0x53, 0x65, 0x61, 0x74, 0x52, 0x05, 0x73, 0x65, 0x61,
+	0x74, 0x73, 0x22, 0x16, 0x0a, 0x04, 0x53, 0x65, 0x61, 0x74, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64,
+	0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x02, 0x69, 0x64, 0x22, 0x1f, 0x0a, 0x0d, 0x47, 0x65,
+	0x74, 0x42, 0x6f, 0x6f, 0x6b, 0x69, 0x6e, 0x67, 0x73, 0x52, 0x71, 0x12, 0x0e, 0x0a, 0x02, 0x69,
+	0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x02, 0x69, 0x64, 0x22, 0x89, 0x01, 0x0a, 0x07,
+	0x42, 0x6f, 0x6f, 0x6b, 0x69, 0x6e, 0x67, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20,
+	0x01, 0x28, 0x03, 0x52, 0x02, 0x69, 0x64, 0x12, 0x1d, 0x0a, 0x0a, 0x63, 0x72, 0x65, 0x61, 0x74,
+	0x65, 0x64, 0x5f, 0x61, 0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x63, 0x72, 0x65,
+	0x61, 0x74, 0x65, 0x64, 0x41, 0x74, 0x12, 0x21, 0x0a, 0x0c, 0x74, 0x6f, 0x74, 0x61, 0x6c, 0x5f,
+	0x61, 0x6d, 0x6f, 0x75, 0x6e, 0x74, 0x18, 0x03, 0x20, 0x01, 0x28, 0x02, 0x52, 0x0b, 0x74, 0x6f,
+	0x74, 0x61, 0x6c, 0x41, 0x6d, 0x6f, 0x75, 0x6e, 0x74, 0x12, 0x2c, 0x0a, 0x07, 0x74, 0x69, 0x63,
+	0x6b, 0x65, 0x74, 0x73, 0x18, 0x04, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x12, 0x2e, 0x61, 0x69, 0x72,
+	0x74, 0x72, 0x61, 0x66, 0x66, 0x69, 0x63, 0x2e, 0x54, 0x69, 0x63, 0x6b, 0x65, 0x74, 0x52, 0x07,
+	0x74, 0x69, 0x63, 0x6b, 0x65, 0x74, 0x73, 0x22, 0x81, 0x01, 0x0a, 0x06, 0x54, 0x69, 0x63, 0x6b,
+	0x65, 0x74, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x02,
+	0x69, 0x64, 0x12, 0x33, 0x0a, 0x09, 0x70, 0x61, 0x73, 0x73, 0x65, 0x6e, 0x67, 0x65, 0x72, 0x18,
+	0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x15, 0x2e, 0x61, 0x69, 0x72, 0x74, 0x72, 0x61, 0x66, 0x66,
+	0x69, 0x63, 0x2e, 0x50, 0x61, 0x73, 0x73, 0x65, 0x6e, 0x67, 0x65, 0x72, 0x52, 0x09, 0x70, 0x61,
+	0x73, 0x73, 0x65, 0x6e, 0x67, 0x65, 0x72, 0x12, 0x32, 0x0a, 0x07, 0x66, 0x6c, 0x69, 0x67, 0x68,
+	0x74, 0x73, 0x18, 0x03, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x18, 0x2e, 0x61, 0x69, 0x72, 0x74, 0x72,
+	0x61, 0x66, 0x66, 0x69, 0x63, 0x2e, 0x54, 0x69, 0x63, 0x6b, 0x65, 0x74, 0x46, 0x6c, 0x69, 0x67,
+	0x68, 0x74, 0x52, 0x07, 0x66, 0x6c, 0x69, 0x67, 0x68, 0x74, 0x73, 0x22, 0x62, 0x0a, 0x0c, 0x54,
+	0x69, 0x63, 0x6b, 0x65, 0x74, 0x46, 0x6c, 0x69, 0x67, 0x68, 0x74, 0x12, 0x0e, 0x0a, 0x02, 0x69,
+	0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x02, 0x69, 0x64, 0x12, 0x2a, 0x0a, 0x06, 0x66,
+	0x6c, 0x69, 0x67, 0x68, 0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x12, 0x2e, 0x61, 0x69,
+	0x72, 0x74, 0x72, 0x61, 0x66, 0x66, 0x69, 0x63, 0x2e, 0x46, 0x6c, 0x69, 0x67, 0x68, 0x74, 0x52,
+	0x06, 0x66, 0x6c, 0x69, 0x67, 0x68, 0x74, 0x12, 0x16, 0x0a, 0x06, 0x61, 0x6d, 0x6f, 0x75, 0x6e,
+	0x74, 0x18, 0x03, 0x20, 0x01, 0x28, 0x02, 0x52, 0x06, 0x61, 0x6d, 0x6f, 0x75, 0x6e, 0x74, 0x22,
+	0x44, 0x0a, 0x0c, 0x42, 0x6f, 0x61, 0x72, 0x64, 0x69, 0x6e, 0x67, 0x50, 0x61, 0x73, 0x73, 0x12,
+	0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x02, 0x69, 0x64, 0x12,
+	0x24, 0x0a, 0x04, 0x73, 0x65, 0x61, 0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x10, 0x2e,
+	0x61, 0x69, 0x72, 0x74, 0x72, 0x61, 0x66, 0x66, 0x69, 0x63, 0x2e, 0x53, 0x65, 0x61, 0x74, 0x52,
+	0x04, 0x73, 0x65, 0x61, 0x74, 0x22, 0x45, 0x0a, 0x09, 0x50, 0x61, 0x73, 0x73, 0x65, 0x6e, 0x67,
+	0x65, 0x72, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x02,
+	0x69, 0x64, 0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09,
+	0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x14, 0x0a, 0x05, 0x65, 0x6d, 0x61, 0x69, 0x6c, 0x18,
+	0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x65, 0x6d, 0x61, 0x69, 0x6c, 0x22, 0x3d, 0x0a, 0x0d,
+	0x42, 0x6f, 0x6f, 0x6b, 0x54, 0x69, 0x63, 0x6b, 0x65, 0x74, 0x73, 0x52, 0x71, 0x12, 0x2c, 0x0a,
+	0x07, 0x74, 0x69, 0x63, 0x6b, 0x65, 0x74, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x12,
+	0x2e, 0x61, 0x69, 0x72, 0x74, 0x72, 0x61, 0x66, 0x66, 0x69, 0x63, 0x2e, 0x54, 0x69, 0x63, 0x6b,
+	0x65, 0x74, 0x52, 0x07, 0x74, 0x69, 0x63, 0x6b, 0x65, 0x74, 0x73, 0x22, 0x59, 0x0a, 0x14, 0x43,
+	0x72, 0x65, 0x61, 0x74, 0x65, 0x42, 0x6f, 0x61, 0x72, 0x64, 0x69, 0x6e, 0x67, 0x50, 0x61, 0x73,
+	0x73, 0x52, 0x71, 0x12, 0x28, 0x0a, 0x10, 0x74, 0x69, 0x63, 0x6b, 0x65, 0x74, 0x5f, 0x66, 0x6c,
+	0x69, 0x67, 0x68, 0x74, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x0e, 0x74,
+	0x69, 0x63, 0x6b, 0x65, 0x74, 0x46, 0x6c, 0x69, 0x67, 0x68, 0x74, 0x49, 0x64, 0x12, 0x17, 0x0a,
+	0x07, 0x73, 0x65, 0x61, 0x74, 0x5f, 0x69, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x03, 0x52, 0x06,
+	0x73, 0x65, 0x61, 0x74, 0x49, 0x64, 0x32, 0xad, 0x02, 0x0a, 0x11, 0x41, 0x69, 0x72, 0x54, 0x72,
+	0x61, 0x66, 0x66, 0x69, 0x63, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0x42, 0x0a, 0x0a,
+	0x47, 0x65, 0x74, 0x46, 0x6c, 0x69, 0x67, 0x68, 0x74, 0x73, 0x12, 0x18, 0x2e, 0x61, 0x69, 0x72,
+	0x74, 0x72, 0x61, 0x66, 0x66, 0x69, 0x63, 0x2e, 0x47, 0x65, 0x74, 0x46, 0x6c, 0x69, 0x67, 0x68,
+	0x74, 0x73, 0x52, 0x71, 0x1a, 0x18, 0x2e, 0x61, 0x69, 0x72, 0x74, 0x72, 0x61, 0x66, 0x66, 0x69,
+	0x63, 0x2e, 0x47, 0x65, 0x74, 0x46, 0x6c, 0x69, 0x67, 0x68, 0x74, 0x73, 0x52, 0x73, 0x22, 0x00,
+	0x12, 0x3f, 0x0a, 0x0b, 0x47, 0x65, 0x74, 0x42, 0x6f, 0x6f, 0x6b, 0x69, 0x6e, 0x67, 0x73, 0x12,
+	0x19, 0x2e, 0x61, 0x69, 0x72, 0x74, 0x72, 0x61, 0x66, 0x66, 0x69, 0x63, 0x2e, 0x47, 0x65, 0x74,
+	0x42, 0x6f, 0x6f, 0x6b, 0x69, 0x6e, 0x67, 0x73, 0x52, 0x71, 0x1a, 0x13, 0x2e, 0x61, 0x69, 0x72,
+	0x74, 0x72, 0x61, 0x66, 0x66, 0x69, 0x63, 0x2e, 0x42, 0x6f, 0x6f, 0x6b, 0x69, 0x6e, 0x67, 0x22,
+	0x00, 0x12, 0x3f, 0x0a, 0x0b, 0x42, 0x6f, 0x6f, 0x6b, 0x54, 0x69, 0x63, 0x6b, 0x65, 0x74, 0x73,
+	0x12, 0x19, 0x2e, 0x61, 0x69, 0x72, 0x74, 0x72, 0x61, 0x66, 0x66, 0x69, 0x63, 0x2e, 0x42, 0x6f,
+	0x6f, 0x6b, 0x54, 0x69, 0x63, 0x6b, 0x65, 0x74, 0x73, 0x52, 0x71, 0x1a, 0x13, 0x2e, 0x61, 0x69,
+	0x72, 0x74, 0x72, 0x61, 0x66, 0x66, 0x69, 0x63, 0x2e, 0x42, 0x6f, 0x6f, 0x6b, 0x69, 0x6e, 0x67,
+	0x22, 0x00, 0x12, 0x52, 0x0a, 0x12, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x42, 0x6f, 0x61, 0x72,
+	0x64, 0x69, 0x6e, 0x67, 0x50, 0x61, 0x73, 0x73, 0x12, 0x20, 0x2e, 0x61, 0x69, 0x72, 0x74, 0x72,
+	0x61, 0x66, 0x66, 0x69, 0x63, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x42, 0x6f, 0x61, 0x72,
+	0x64, 0x69, 0x6e, 0x67, 0x50, 0x61, 0x73, 0x73, 0x52, 0x71, 0x1a, 0x18, 0x2e, 0x61, 0x69, 0x72,
+	0x74, 0x72, 0x61, 0x66, 0x66, 0x69, 0x63, 0x2e, 0x42, 0x6f, 0x61, 0x72, 0x64, 0x69, 0x6e, 0x67,
+	0x50, 0x61, 0x73, 0x73, 0x22, 0x00, 0x42, 0x1a, 0x5a, 0x18, 0x69, 0x6e, 0x74, 0x65, 0x72, 0x6e,
+	0x61, 0x6c, 0x2f, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x2f, 0x67, 0x72, 0x70, 0x63, 0x2f,
+	0x70, 0x62, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -252,21 +1019,47 @@ func file_internal_service_grpc_pb_airtraffic_proto_rawDescGZIP() []byte {
 	return file_internal_service_grpc_pb_airtraffic_proto_rawDescData
 }
 
-var file_internal_service_grpc_pb_airtraffic_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_internal_service_grpc_pb_airtraffic_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
 var file_internal_service_grpc_pb_airtraffic_proto_goTypes = []interface{}{
-	(*GetFlightsRq)(nil), // 0: airtraffic.GetFlightsRq
-	(*GetFlightsRs)(nil), // 1: airtraffic.GetFlightsRs
-	(*Flight)(nil),       // 2: airtraffic.Flight
+	(*GetFlightsRq)(nil),         // 0: airtraffic.GetFlightsRq
+	(*GetFlightsRs)(nil),         // 1: airtraffic.GetFlightsRs
+	(*Flight)(nil),               // 2: airtraffic.Flight
+	(*Airport)(nil),              // 3: airtraffic.Airport
+	(*Aircraft)(nil),             // 4: airtraffic.Aircraft
+	(*Seat)(nil),                 // 5: airtraffic.Seat
+	(*GetBookingsRq)(nil),        // 6: airtraffic.GetBookingsRq
+	(*Booking)(nil),              // 7: airtraffic.Booking
+	(*Ticket)(nil),               // 8: airtraffic.Ticket
+	(*TicketFlight)(nil),         // 9: airtraffic.TicketFlight
+	(*BoardingPass)(nil),         // 10: airtraffic.BoardingPass
+	(*Passenger)(nil),            // 11: airtraffic.Passenger
+	(*BookTicketsRq)(nil),        // 12: airtraffic.BookTicketsRq
+	(*CreateBoardingPassRq)(nil), // 13: airtraffic.CreateBoardingPassRq
 }
 var file_internal_service_grpc_pb_airtraffic_proto_depIdxs = []int32{
-	2, // 0: airtraffic.GetFlightsRs.flights:type_name -> airtraffic.Flight
-	0, // 1: airtraffic.AirTrafficService.GetFlights:input_type -> airtraffic.GetFlightsRq
-	1, // 2: airtraffic.AirTrafficService.GetFlights:output_type -> airtraffic.GetFlightsRs
-	2, // [2:3] is the sub-list for method output_type
-	1, // [1:2] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	2,  // 0: airtraffic.GetFlightsRs.flights:type_name -> airtraffic.Flight
+	3,  // 1: airtraffic.Flight.departure_airport:type_name -> airtraffic.Airport
+	3,  // 2: airtraffic.Flight.arrival_airport:type_name -> airtraffic.Airport
+	5,  // 3: airtraffic.Aircraft.seats:type_name -> airtraffic.Seat
+	8,  // 4: airtraffic.Booking.tickets:type_name -> airtraffic.Ticket
+	11, // 5: airtraffic.Ticket.passenger:type_name -> airtraffic.Passenger
+	9,  // 6: airtraffic.Ticket.flights:type_name -> airtraffic.TicketFlight
+	2,  // 7: airtraffic.TicketFlight.flight:type_name -> airtraffic.Flight
+	5,  // 8: airtraffic.BoardingPass.seat:type_name -> airtraffic.Seat
+	8,  // 9: airtraffic.BookTicketsRq.tickets:type_name -> airtraffic.Ticket
+	0,  // 10: airtraffic.AirTrafficService.GetFlights:input_type -> airtraffic.GetFlightsRq
+	6,  // 11: airtraffic.AirTrafficService.GetBookings:input_type -> airtraffic.GetBookingsRq
+	12, // 12: airtraffic.AirTrafficService.BookTickets:input_type -> airtraffic.BookTicketsRq
+	13, // 13: airtraffic.AirTrafficService.CreateBoardingPass:input_type -> airtraffic.CreateBoardingPassRq
+	1,  // 14: airtraffic.AirTrafficService.GetFlights:output_type -> airtraffic.GetFlightsRs
+	7,  // 15: airtraffic.AirTrafficService.GetBookings:output_type -> airtraffic.Booking
+	7,  // 16: airtraffic.AirTrafficService.BookTickets:output_type -> airtraffic.Booking
+	10, // 17: airtraffic.AirTrafficService.CreateBoardingPass:output_type -> airtraffic.BoardingPass
+	14, // [14:18] is the sub-list for method output_type
+	10, // [10:14] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_internal_service_grpc_pb_airtraffic_proto_init() }
@@ -311,6 +1104,138 @@ func file_internal_service_grpc_pb_airtraffic_proto_init() {
 				return nil
 			}
 		}
+		file_internal_service_grpc_pb_airtraffic_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*Airport); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_internal_service_grpc_pb_airtraffic_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*Aircraft); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_internal_service_grpc_pb_airtraffic_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*Seat); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_internal_service_grpc_pb_airtraffic_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetBookingsRq); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_internal_service_grpc_pb_airtraffic_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*Booking); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_internal_service_grpc_pb_airtraffic_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*Ticket); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_internal_service_grpc_pb_airtraffic_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*TicketFlight); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_internal_service_grpc_pb_airtraffic_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*BoardingPass); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_internal_service_grpc_pb_airtraffic_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*Passenger); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_internal_service_grpc_pb_airtraffic_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*BookTicketsRq); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_internal_service_grpc_pb_airtraffic_proto_msgTypes[13].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*CreateBoardingPassRq); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -318,7 +1243,7 @@ func file_internal_service_grpc_pb_airtraffic_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_internal_service_grpc_pb_airtraffic_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   14,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
