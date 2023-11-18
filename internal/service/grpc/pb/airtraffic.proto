@@ -13,7 +13,6 @@ service AirTrafficService {
 }
 
 message GetFlightsRq {
-  string date = 1;
 }
 
 message GetFlightsRs {

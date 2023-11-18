@@ -21,16 +21,19 @@ type Service struct {
 	cont *adaptor.Container
 }
 
-func (s Service) GetFlights(ctx context.Context, req *pb.GetFlightsRq) (*pb.GetFlightsRs, error) {
+func (s Service) GetFlights(ctx context.Context, _ *pb.GetFlightsRq) (*pb.GetFlightsRs, error) {
 	act := flights.NewGetList(s.cont.GetFlightRepository())
 
-	flights, err := act.Do(ctx)
+	flightsList, err := act.Do(ctx)
 	if err != nil {
 		return nil, errors.Wrap(err, "get flights list")
 	}
 
 	res := &pb.GetFlightsRs{}
-	err = copier.CopyWithOption(res, &flights, converter.DefaultConverterOptions)
+	err = copier.CopyWithOption(res, &flightsList, converter.DefaultConverterOptions)
+	if err != nil {
+		return nil, errors.Wrap(err, "copy flights list")
+	}
 
 	return res, nil
 }
@@ -45,6 +48,9 @@ func (s Service) GetBooking(ctx context.Context, req *pb.GetBookingRq) (*pb.Book
 
 	res := &pb.Booking{}
 	err = copier.CopyWithOption(res, &booking, converter.DefaultConverterOptions)
+	if err != nil {
+		return nil, errors.Wrap(err, "copy booking")
+	}
 
 	return res, err
 }

@@ -21,7 +21,7 @@ func NewContainer(configPath string) (*Container, error) {
 		return nil, errors.Wrap(err, "init config")
 	}
 
-	db, err := db.Init(cfg)
+	database, err := db.Init(cfg)
 	if err != nil {
 		log.Println(err)
 		return nil, errors.Wrap(err, "init db")
@@ -29,7 +29,7 @@ func NewContainer(configPath string) (*Container, error) {
 
 	return &Container{
 		cfg: cfg,
-		db:  db,
+		db:  database,
 	}, nil
 }
 
