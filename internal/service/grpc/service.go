@@ -2,16 +2,14 @@ package grpc
 
 import (
 	"context"
-
+	"github.com/jinzhu/copier"
+	"github.com/nikolaevv/airtraffic/internal/action/bookings"
 	"github.com/nikolaevv/airtraffic/internal/action/flights"
 	"github.com/nikolaevv/airtraffic/internal/adaptor"
 	"github.com/nikolaevv/airtraffic/internal/service/grpc/pb"
+	"github.com/nikolaevv/airtraffic/pkg/converter"
 
 	"github.com/pkg/errors"
-)
-
-const (
-	defaultDateFormat = "2006-01-02 15:04:05"
 )
 
 func Init(cont *adaptor.Container) pb.AirTrafficServiceServer {
@@ -32,16 +30,21 @@ func (s Service) GetFlights(ctx context.Context, req *pb.GetFlightsRq) (*pb.GetF
 	}
 
 	res := &pb.GetFlightsRs{}
-	for _, flight := range flights {
-		res.Flights = append(res.Flights, &pb.Flight{
-			Id:                 int64(flight.ID),
-			ScheduledDeparture: flight.ScheduledDeparture.Format(defaultDateFormat),
-			ScheduledArrival:   flight.ScheduledArrival.Format(defaultDateFormat),
-			Status:             string(flight.Status),
-			AircraftId:         int64(flight.AircraftID),
-			ActualDeparture:    flight.ActualDeparture.Format(defaultDateFormat),
-		})
-	}
+	err = copier.CopyWithOption(res, &flights, converter.DefaultConverterOptions)
 
 	return res, nil
+}
+
+func (s Service) GetBooking(ctx context.Context, req *pb.GetBookingRq) (*pb.Booking, error) {
+	act := bookings.NewGet(s.cont.GetBookingRepository())
+
+	booking, err := act.Do(ctx, int(req.Id))
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	res := &pb.Booking{}
+	err = copier.CopyWithOption(res, &booking, converter.DefaultConverterOptions)
+
+	return res, err
 }

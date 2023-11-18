@@ -7,7 +7,7 @@ option go_package = "internal/service/grpc/pb";
 service AirTrafficService {
   rpc GetFlights(GetFlightsRq) returns (GetFlightsRs) {}
 
-  rpc GetBookings(GetBookingsRq) returns (Booking) {}
+  rpc GetBooking(GetBookingRq) returns (Booking) {}
   rpc BookTickets(BookTicketsRq) returns (Booking) {}
   rpc CreateBoardingPass(CreateBoardingPassRq) returns (BoardingPass) {}
 }
@@ -24,11 +24,12 @@ message Flight {
   int64 id = 1;
   string scheduled_departure = 2;
   string scheduled_arrival = 3;
-  Airport departure_airport = 4;
-  Airport arrival_airport = 5;
+  int64 departure_airport_id = 4;
+  int64 arrival_airport_id = 5;
   string status = 6;
   int64 aircraft_id = 7;
   string actual_departure = 8;
+  string actual_arrival = 9;
 }
 
 message Airport {
@@ -50,7 +51,7 @@ message Seat {
   int64 id = 1;
 }
 
-message GetBookingsRq {
+message GetBookingRq {
   int64 id = 1;
 }
 

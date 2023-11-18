@@ -44,3 +44,7 @@ func (c Container) GetDatabase() *pgx.Conn {
 func (c Container) GetFlightRepository() *FlightRepository {
 	return NewFlightRepository(c.db)
 }
+
+func (c Container) GetBookingRepository() *BookingRepository {
+	return NewBookingRepository(c.db)
+}

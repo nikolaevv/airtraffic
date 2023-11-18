@@ -59,6 +59,7 @@ create table if not exists tickets (
 
 create table if not exists ticket_flights (
     id serial primary key,
+    ticket_id int references tickets(id),
     flight_id int references flights(id),
     amount float not null
 );

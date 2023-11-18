@@ -1,6 +1,9 @@
 package model
 
-import "time"
+import (
+	"database/sql"
+	"time"
+)
 
 type FlightStatus string
 
@@ -17,10 +20,10 @@ type Flight struct {
 	ID                 int          `json:"id"`
 	ScheduledDeparture time.Time    `json:"scheduled_departure"`
 	ScheduledArrival   time.Time    `json:"scheduled_arrival"`
-	DepartureAirport   Airport      `json:"departure_airport"`
-	ArrivalAirport     Airport      `json:"arrival_airport"`
+	DepartureAirportID int          `json:"departure_airport_id"`
+	ArrivalAirportID   int          `json:"arrival_airport_id"`
 	Status             FlightStatus `json:"status"`
 	AircraftID         int          `json:"aircraft_id"`
-	ActualDeparture    time.Time    `json:"actual_departure"`
-	ActualArrival      time.Time    `json:"actual_arrival"`
+	ActualDeparture    sql.NullTime `json:"actual_departure"`
+	ActualArrival      sql.NullTime `json:"actual_arrival"`
 }
