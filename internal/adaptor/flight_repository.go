@@ -23,13 +23,13 @@ func (f *FlightRepository) GetList(ctx context.Context) ([]model.Flight, error) 
 	var query = "select id, scheduled_departure, scheduled_arrival, status, aircraft_id, actual_departure, actual_arrival from flights"
 	rows, err := f.db.Query(ctx, query)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, errors.Wrap(err, "query flight list")
 	}
 
 	for rows.Next() {
 		var flight model.Flight
 		if err := rows.Scan(&flight.ID, &flight.ScheduledDeparture, &flight.ScheduledArrival, &flight.Status, &flight.AircraftID, &flight.ActualDeparture, &flight.ActualArrival); err != nil {
-			return nil, errors.WithStack(err)
+			return nil, errors.Wrap(err, "scan flight list")
 		}
 
 		flights = append(flights, flight)

@@ -25,11 +25,11 @@ func Init(cfg Config) (*pgx.Conn, error) {
 
 	conn, err := pgx.Connect(context.Background(), dsn)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, errors.Wrap(err, "connect to postgres")
 	}
 
 	if err = conn.Ping(context.Background()); err != nil {
-		return nil, errors.WithStack(err)
+		return nil, errors.Wrap(err, "ping postgres")
 	} else {
 		log.Println("DB connection established")
 	}

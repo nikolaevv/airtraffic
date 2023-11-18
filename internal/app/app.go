@@ -24,7 +24,7 @@ func (s *Server) Start() error {
 	)
 
 	if err != nil {
-		grpclog.Fatalf("Failed to listen: %v", errors.WithStack(err))
+		grpclog.Fatalf("Failed to listen: %v", err)
 	}
 
 	var opts []grpc.ServerOption
@@ -33,5 +33,5 @@ func (s *Server) Start() error {
 	pb.RegisterAirTrafficServiceServer(grpcServer, grpcService.Init(s.cont))
 	err = grpcServer.Serve(listener)
 
-	return errors.WithStack(err)
+	return errors.Wrap(err, "start grpc server")
 }

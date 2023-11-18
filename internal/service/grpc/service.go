@@ -26,7 +26,7 @@ func (s Service) GetFlights(ctx context.Context, req *pb.GetFlightsRq) (*pb.GetF
 
 	flights, err := act.Do(ctx)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, errors.Wrap(err, "get flights list")
 	}
 
 	res := &pb.GetFlightsRs{}
@@ -40,7 +40,7 @@ func (s Service) GetBooking(ctx context.Context, req *pb.GetBookingRq) (*pb.Book
 
 	booking, err := act.Do(ctx, int(req.Id))
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, errors.Wrap(err, "get booking by id")
 	}
 
 	res := &pb.Booking{}

@@ -18,13 +18,13 @@ func NewContainer(configPath string) (*Container, error) {
 	cfg, err := config.Init(configPath)
 	if err != nil {
 		log.Println(err)
-		return nil, errors.WithStack(err)
+		return nil, errors.Wrap(err, "init config")
 	}
 
 	db, err := db.Init(cfg)
 	if err != nil {
 		log.Println(err)
-		return nil, errors.WithStack(err)
+		return nil, errors.Wrap(err, "init db")
 	}
 
 	return &Container{

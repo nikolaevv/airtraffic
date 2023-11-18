@@ -28,7 +28,7 @@ func (b *BookingRepository) Get(ctx context.Context, id int) (model.Booking, err
 
 	rows, err := b.db.Query(ctx, query, id)
 	if err != nil {
-		return booking, errors.WithStack(err)
+		return booking, errors.Wrap(err, "query booking")
 	}
 	//defer rows.Close()
 
@@ -37,7 +37,7 @@ func (b *BookingRepository) Get(ctx context.Context, id int) (model.Booking, err
 
 		err := rows.Scan(&booking.ID, &booking.CreatedAt, &booking.TotalAmount, &ticket.ID, &ticket.Passenger.ID)
 		if err != nil {
-			return booking, errors.WithStack(err)
+			return booking, errors.Wrap(err, "scan booking")
 		}
 
 		booking.Tickets = append(booking.Tickets, ticket)
@@ -46,10 +46,13 @@ func (b *BookingRepository) Get(ctx context.Context, id int) (model.Booking, err
 	rows.Close()
 	for i, ticket := range booking.Tickets {
 		booking.Tickets[i].Passenger, err = b.getPassenger(ctx, ticket.Passenger.ID)
+		if err != nil {
+			return booking, errors.Wrap(err, "get passenger")
+		}
 
 		booking.Tickets[i].Flights, err = b.getFlights(ctx, ticket.ID)
 		if err != nil {
-			return booking, errors.WithStack(err)
+			return booking, errors.Wrap(err, "get flights")
 		}
 	}
 
@@ -67,7 +70,7 @@ func (b *BookingRepository) getPassenger(ctx context.Context, id int) (model.Pas
 
 	err := b.db.QueryRow(ctx, query, id).Scan(&passenger.ID, &passenger.Name, &passenger.Email)
 	if err != nil {
-		return passenger, errors.WithStack(err)
+		return passenger, errors.Wrap(err, "query row passenger")
 	}
 
 	return passenger, nil
@@ -85,7 +88,7 @@ func (b *BookingRepository) getFlights(ctx context.Context, ticketID int) ([]mod
 
 	rows, err := b.db.Query(ctx, query, ticketID)
 	if err != nil {
-		return ticketFlights, errors.WithStack(err)
+		return ticketFlights, errors.Wrap(err, "query flights")
 	}
 	defer rows.Close()
 
@@ -107,7 +110,7 @@ func (b *BookingRepository) getFlights(ctx context.Context, ticketID int) ([]mod
 		)
 
 		if err != nil {
-			return ticketFlights, errors.WithStack(err)
+			return ticketFlights, errors.Wrap(err, "scan flights")
 		}
 
 		ticketFlights = append(ticketFlights, ticketFlight)
