@@ -24,8 +24,8 @@ const _ = grpc.SupportPackageIsVersion7
 type AirTrafficServiceClient interface {
 	GetFlights(ctx context.Context, in *GetFlightsRq, opts ...grpc.CallOption) (*GetFlightsRs, error)
 	GetBooking(ctx context.Context, in *GetBookingRq, opts ...grpc.CallOption) (*Booking, error)
-	BookTickets(ctx context.Context, in *BookTicketsRq, opts ...grpc.CallOption) (*Booking, error)
 	CreateBoardingPass(ctx context.Context, in *CreateBoardingPassRq, opts ...grpc.CallOption) (*BoardingPass, error)
+	BookTickets(ctx context.Context, in *BookTicketsRq, opts ...grpc.CallOption) (*Booking, error)
 }
 
 type airTrafficServiceClient struct {
@@ -54,18 +54,18 @@ func (c *airTrafficServiceClient) GetBooking(ctx context.Context, in *GetBooking
 	return out, nil
 }
 
-func (c *airTrafficServiceClient) BookTickets(ctx context.Context, in *BookTicketsRq, opts ...grpc.CallOption) (*Booking, error) {
-	out := new(Booking)
-	err := c.cc.Invoke(ctx, "/airtraffic.AirTrafficService/BookTickets", in, out, opts...)
+func (c *airTrafficServiceClient) CreateBoardingPass(ctx context.Context, in *CreateBoardingPassRq, opts ...grpc.CallOption) (*BoardingPass, error) {
+	out := new(BoardingPass)
+	err := c.cc.Invoke(ctx, "/airtraffic.AirTrafficService/CreateBoardingPass", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *airTrafficServiceClient) CreateBoardingPass(ctx context.Context, in *CreateBoardingPassRq, opts ...grpc.CallOption) (*BoardingPass, error) {
-	out := new(BoardingPass)
-	err := c.cc.Invoke(ctx, "/airtraffic.AirTrafficService/CreateBoardingPass", in, out, opts...)
+func (c *airTrafficServiceClient) BookTickets(ctx context.Context, in *BookTicketsRq, opts ...grpc.CallOption) (*Booking, error) {
+	out := new(Booking)
+	err := c.cc.Invoke(ctx, "/airtraffic.AirTrafficService/BookTickets", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -78,8 +78,8 @@ func (c *airTrafficServiceClient) CreateBoardingPass(ctx context.Context, in *Cr
 type AirTrafficServiceServer interface {
 	GetFlights(context.Context, *GetFlightsRq) (*GetFlightsRs, error)
 	GetBooking(context.Context, *GetBookingRq) (*Booking, error)
-	BookTickets(context.Context, *BookTicketsRq) (*Booking, error)
 	CreateBoardingPass(context.Context, *CreateBoardingPassRq) (*BoardingPass, error)
+	BookTickets(context.Context, *BookTicketsRq) (*Booking, error)
 	mustEmbedUnimplementedAirTrafficServiceServer()
 }
 
@@ -93,11 +93,11 @@ func (UnimplementedAirTrafficServiceServer) GetFlights(context.Context, *GetFlig
 func (UnimplementedAirTrafficServiceServer) GetBooking(context.Context, *GetBookingRq) (*Booking, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetBooking not implemented")
 }
-func (UnimplementedAirTrafficServiceServer) BookTickets(context.Context, *BookTicketsRq) (*Booking, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method BookTickets not implemented")
-}
 func (UnimplementedAirTrafficServiceServer) CreateBoardingPass(context.Context, *CreateBoardingPassRq) (*BoardingPass, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateBoardingPass not implemented")
+}
+func (UnimplementedAirTrafficServiceServer) BookTickets(context.Context, *BookTicketsRq) (*Booking, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method BookTickets not implemented")
 }
 func (UnimplementedAirTrafficServiceServer) mustEmbedUnimplementedAirTrafficServiceServer() {}
 
@@ -148,24 +148,6 @@ func _AirTrafficService_GetBooking_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AirTrafficService_BookTickets_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(BookTicketsRq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AirTrafficServiceServer).BookTickets(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/airtraffic.AirTrafficService/BookTickets",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AirTrafficServiceServer).BookTickets(ctx, req.(*BookTicketsRq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _AirTrafficService_CreateBoardingPass_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CreateBoardingPassRq)
 	if err := dec(in); err != nil {
@@ -180,6 +162,24 @@ func _AirTrafficService_CreateBoardingPass_Handler(srv interface{}, ctx context.
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AirTrafficServiceServer).CreateBoardingPass(ctx, req.(*CreateBoardingPassRq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AirTrafficService_BookTickets_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BookTicketsRq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AirTrafficServiceServer).BookTickets(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/airtraffic.AirTrafficService/BookTickets",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AirTrafficServiceServer).BookTickets(ctx, req.(*BookTicketsRq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -200,12 +200,12 @@ var AirTrafficService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _AirTrafficService_GetBooking_Handler,
 		},
 		{
-			MethodName: "BookTickets",
-			Handler:    _AirTrafficService_BookTickets_Handler,
-		},
-		{
 			MethodName: "CreateBoardingPass",
 			Handler:    _AirTrafficService_CreateBoardingPass_Handler,
+		},
+		{
+			MethodName: "BookTickets",
+			Handler:    _AirTrafficService_BookTickets_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

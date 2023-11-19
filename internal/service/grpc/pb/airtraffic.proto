@@ -8,7 +8,6 @@ service AirTrafficService {
   rpc GetFlights(GetFlightsRq) returns (GetFlightsRs) {}
   rpc GetBooking(GetBookingRq) returns (Booking) {}
   rpc CreateBoardingPass(CreateBoardingPassRq) returns (BoardingPass) {}
-
   rpc BookTickets(BookTicketsRq) returns (Booking) {}
 }
 
@@ -85,7 +84,8 @@ message Passenger {
 }
 
 message BookTicketsRq {
-  repeated Ticket tickets = 1;
+  int64 flight_id = 1;
+  repeated Passenger passengers = 2;
 }
 
 message CreateBoardingPassRq {

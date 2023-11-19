@@ -7,6 +7,7 @@ import (
 	"github.com/nikolaevv/airtraffic/internal/action/bookings"
 	"github.com/nikolaevv/airtraffic/internal/action/flights"
 	"github.com/nikolaevv/airtraffic/internal/adaptor"
+	"github.com/nikolaevv/airtraffic/internal/model"
 	"github.com/nikolaevv/airtraffic/internal/service/grpc/pb"
 	"github.com/nikolaevv/airtraffic/pkg/converter"
 
@@ -68,6 +69,30 @@ func (s Service) CreateBoardingPass(ctx context.Context, req *pb.CreateBoardingP
 	err = copier.CopyWithOption(res, &boardingPass, converter.DefaultConverterOptions)
 	if err != nil {
 		return nil, errors.Wrap(err, "copy boarding pass")
+	}
+
+	return res, nil
+}
+
+func (s Service) BookTickets(ctx context.Context, req *pb.BookTicketsRq) (*pb.Booking, error) {
+	passengers := make([]model.Passenger, 0, len(req.Passengers))
+
+	err := copier.Copy(&passengers, &req.Passengers)
+	if err != nil {
+		return nil, errors.Wrap(err, "copy passengers")
+	}
+
+	act := bookings.NewCreate(s.cont.GetBookingRepository())
+
+	booking, err := act.Do(ctx, int(req.FlightId), passengers)
+	if err != nil {
+		return nil, errors.Wrap(err, "create booking")
+	}
+
+	res := &pb.Booking{}
+	err = copier.CopyWithOption(res, &booking, converter.DefaultConverterOptions)
+	if err != nil {
+		return nil, errors.Wrap(err, "copy booking")
 	}
 
 	return res, nil

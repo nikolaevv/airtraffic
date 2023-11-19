@@ -119,3 +119,59 @@ func (b *BookingRepository) getFlights(ctx context.Context, ticketID int) ([]mod
 	return ticketFlights, nil
 
 }
+
+func (b *BookingRepository) CreateBooking(ctx context.Context, totalAmount float64) (model.Booking, error) {
+	booking := model.Booking{
+		TotalAmount: totalAmount,
+	}
+
+	var query = `
+		insert into bookings (total_amount)
+		values ($1)
+		returning id, created_at
+	`
+
+	err := b.db.QueryRow(ctx, query, totalAmount).Scan(&booking.ID, &booking.CreatedAt)
+	if err != nil {
+		return booking, errors.Wrap(err, "query create booking")
+	}
+
+	return booking, nil
+}
+
+func (b *BookingRepository) CreateTicket(ctx context.Context, bookingID, passengerID int) (model.Ticket, error) {
+	var ticket model.Ticket
+
+	var query = `
+		insert into tickets (booking_id, passenger_id)
+		values ($1, $2)
+		returning id
+	`
+
+	err := b.db.QueryRow(ctx, query, bookingID, passengerID).Scan(&ticket.ID)
+	if err != nil {
+		return ticket, errors.Wrap(err, "query create ticket")
+	}
+
+	return ticket, nil
+}
+
+func (b *BookingRepository) CreateFlightTicket(ctx context.Context, ticketID, flightID int, amount float64) (model.TicketFlight, error) {
+	ticketFlight := model.TicketFlight{
+		Amount: amount,
+	}
+
+	var query = `
+		insert into ticket_flights (ticket_id, flight_id, amount)
+		values ($1, $2, $3)
+	    returning id
+	`
+
+	err := b.db.QueryRow(ctx, query, ticketID, flightID, amount).Scan(&ticketFlight.ID)
+
+	if err != nil {
+		return ticketFlight, errors.Wrap(err, "query create ticket flight")
+	}
+
+	return ticketFlight, nil
+}
