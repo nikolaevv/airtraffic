@@ -3,6 +3,7 @@ package grpc
 import (
 	"context"
 	"github.com/jinzhu/copier"
+	"github.com/nikolaevv/airtraffic/internal/action/boarding_pass"
 	"github.com/nikolaevv/airtraffic/internal/action/bookings"
 	"github.com/nikolaevv/airtraffic/internal/action/flights"
 	"github.com/nikolaevv/airtraffic/internal/adaptor"
@@ -53,4 +54,21 @@ func (s Service) GetBooking(ctx context.Context, req *pb.GetBookingRq) (*pb.Book
 	}
 
 	return res, err
+}
+
+func (s Service) CreateBoardingPass(ctx context.Context, req *pb.CreateBoardingPassRq) (*pb.BoardingPass, error) {
+	act := boarding_pass.NewCreate(s.cont.GetBoardingPassRepository())
+
+	boardingPass, err := act.Do(ctx, int(req.TicketFlightId), int(req.SeatId))
+	if err != nil {
+		return nil, errors.Wrap(err, "create boarding pass")
+	}
+
+	res := &pb.BoardingPass{}
+	err = copier.CopyWithOption(res, &boardingPass, converter.DefaultConverterOptions)
+	if err != nil {
+		return nil, errors.Wrap(err, "copy boarding pass")
+	}
+
+	return res, nil
 }

@@ -6,10 +6,10 @@ option go_package = "internal/service/grpc/pb";
 
 service AirTrafficService {
   rpc GetFlights(GetFlightsRq) returns (GetFlightsRs) {}
-
   rpc GetBooking(GetBookingRq) returns (Booking) {}
-  rpc BookTickets(BookTicketsRq) returns (Booking) {}
   rpc CreateBoardingPass(CreateBoardingPassRq) returns (BoardingPass) {}
+
+  rpc BookTickets(BookTicketsRq) returns (Booking) {}
 }
 
 message GetFlightsRq {

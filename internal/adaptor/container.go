@@ -48,3 +48,7 @@ func (c Container) GetFlightRepository() *FlightRepository {
 func (c Container) GetBookingRepository() *BookingRepository {
 	return NewBookingRepository(c.db)
 }
+
+func (c Container) GetBoardingPassRepository() *BoardingPassRepository {
+	return NewBoardingPassRepository(c.db)
+}
