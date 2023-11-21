@@ -120,26 +120,59 @@ func (b *BookingRepository) getFlights(ctx context.Context, ticketID int) ([]mod
 
 }
 
-func (b *BookingRepository) CreateBooking(ctx context.Context, totalAmount float64) (model.Booking, error) {
+func (b *BookingRepository) CreateBooking(
+	ctx context.Context,
+	totalAmount float64,
+	tickets []model.Ticket,
+) (model.Booking, error) {
 	booking := model.Booking{
 		TotalAmount: totalAmount,
 	}
 
-	var query = `
-		insert into bookings (total_amount)
-		values ($1)
-		returning id, created_at
-	`
-
-	err := b.db.QueryRow(ctx, query, totalAmount).Scan(&booking.ID, &booking.CreatedAt)
+	tx, err := b.db.Begin(ctx)
 	if err != nil {
+		return booking, errors.Wrap(err, "begin transaction")
+	}
+
+	err = tx.
+		QueryRow(ctx, "insert into bookings (total_amount) values ($1) returning id, created_at", totalAmount).
+		Scan(&booking.ID, &booking.CreatedAt)
+
+	if err != nil {
+		_ = tx.Rollback(ctx)
 		return booking, errors.Wrap(err, "query create booking")
 	}
 
-	return booking, nil
+	for _, ticket := range tickets {
+		ticket, err := b.createTicket(ctx, tx, booking.ID, ticket.Passenger.ID)
+		if err != nil {
+			_ = tx.Rollback(ctx)
+			return booking, errors.Wrap(err, "create ticket")
+		}
+
+		for i, flight := range ticket.Flights {
+			ticketFlight, err := b.createTicketFlight(ctx, tx, ticket.ID, flight.Flight.ID, flight.Amount)
+			if err != nil {
+				_ = tx.Rollback(ctx)
+				return booking, errors.Wrap(err, "create ticket flight")
+			}
+
+			ticket.Flights[i] = ticketFlight
+		}
+
+		booking.Tickets = append(booking.Tickets, ticket)
+	}
+
+	err = tx.Commit(ctx)
+	return booking, err
 }
 
-func (b *BookingRepository) CreateTicket(ctx context.Context, bookingID, passengerID int) (model.Ticket, error) {
+func (b *BookingRepository) createTicket(
+	ctx context.Context,
+	tx pgx.Tx,
+	bookingID,
+	passengerID int,
+) (model.Ticket, error) {
 	var ticket model.Ticket
 
 	var query = `
@@ -148,7 +181,7 @@ func (b *BookingRepository) CreateTicket(ctx context.Context, bookingID, passeng
 		returning id
 	`
 
-	err := b.db.QueryRow(ctx, query, bookingID, passengerID).Scan(&ticket.ID)
+	err := tx.QueryRow(ctx, query, bookingID, passengerID).Scan(&ticket.ID)
 	if err != nil {
 		return ticket, errors.Wrap(err, "query create ticket")
 	}
@@ -156,7 +189,13 @@ func (b *BookingRepository) CreateTicket(ctx context.Context, bookingID, passeng
 	return ticket, nil
 }
 
-func (b *BookingRepository) CreateFlightTicket(ctx context.Context, ticketID, flightID int, amount float64) (model.TicketFlight, error) {
+func (b *BookingRepository) createTicketFlight(
+	ctx context.Context,
+	tx pgx.Tx,
+	ticketID,
+	flightID int,
+	amount float64,
+) (model.TicketFlight, error) {
 	ticketFlight := model.TicketFlight{
 		Amount: amount,
 	}
@@ -167,7 +206,7 @@ func (b *BookingRepository) CreateFlightTicket(ctx context.Context, ticketID, fl
 	    returning id
 	`
 
-	err := b.db.QueryRow(ctx, query, ticketID, flightID, amount).Scan(&ticketFlight.ID)
+	err := tx.QueryRow(ctx, query, ticketID, flightID, amount).Scan(&ticketFlight.ID)
 
 	if err != nil {
 		return ticketFlight, errors.Wrap(err, "query create ticket flight")

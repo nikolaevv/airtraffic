@@ -11,9 +11,7 @@ const (
 )
 
 type CreateAdaptor interface {
-	CreateBooking(ctx context.Context, totalAmount float64) (model.Booking, error)
-	CreateTicket(ctx context.Context, bookingID, passengerID int) (model.Ticket, error)
-	CreateFlightTicket(ctx context.Context, ticketID, flightID int, amount float64) (model.TicketFlight, error)
+	CreateBooking(ctx context.Context, totalAmount float64, tickets []model.Ticket) (model.Booking, error)
 }
 
 type Create struct {
@@ -29,28 +27,28 @@ func NewCreate(repo CreateAdaptor) Create {
 func (act Create) Do(ctx context.Context, flightID int, passengers []model.Passenger) (model.Booking, error) {
 	total := float64(len(passengers) * singleTicketPrice)
 
-	booking, err := act.repo.CreateBooking(ctx, total)
-	if err != nil {
-		return booking, errors.Wrap(err, "create booking")
-	}
+	tickets := make([]model.Ticket, 0, len(passengers))
 
 	for _, passenger := range passengers {
-		ticket, err := act.repo.CreateTicket(ctx, booking.ID, passenger.ID)
-		if err != nil {
-			return booking, errors.Wrap(err, "create ticket")
+
+		ticket := model.Ticket{
+			Passenger: passenger,
+			Flights: []model.TicketFlight{
+				{
+					Flight: model.Flight{
+						ID: flightID,
+					},
+					Amount: singleTicketPrice,
+				},
+			},
 		}
 
-		ticket.Passenger = passenger
-		booking.Tickets = append(booking.Tickets, ticket)
+		tickets = append(tickets, ticket)
 	}
 
-	for i, ticket := range booking.Tickets {
-		flightTicket, err := act.repo.CreateFlightTicket(ctx, ticket.ID, flightID, singleTicketPrice)
-		if err != nil {
-			return booking, errors.Wrap(err, "create flight ticket")
-		}
-
-		booking.Tickets[i].Flights = append(booking.Tickets[i].Flights, flightTicket)
+	booking, err := act.repo.CreateBooking(ctx, total, tickets)
+	if err != nil {
+		return booking, errors.Wrap(err, "create booking")
 	}
 
 	return booking, nil
