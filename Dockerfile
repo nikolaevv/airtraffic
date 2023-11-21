@@ -1,4 +1,4 @@
-FROM golang:1.19-buster as task-builder
+FROM golang:1.20-buster as task-builder
 
 WORKDIR /app
 
