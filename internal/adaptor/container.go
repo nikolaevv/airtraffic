@@ -37,18 +37,6 @@ func (c Container) GetConfig() *viper.Viper {
 	return c.cfg
 }
 
-func (c Container) GetDatabase() *pgx.Conn {
-	return c.db
-}
-
-func (c Container) GetFlightRepository() *FlightRepository {
-	return NewFlightRepository(c.db)
-}
-
-func (c Container) GetBookingRepository() *BookingRepository {
-	return NewBookingRepository(c.db)
-}
-
-func (c Container) GetBoardingPassRepository() *BoardingPassRepository {
-	return NewBoardingPassRepository(c.db)
+func (c Container) GetRepository() *Repository {
+	return NewRepository(c.db)
 }

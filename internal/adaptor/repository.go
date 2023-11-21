@@ -3,20 +3,21 @@ package adaptor
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5"
 	"github.com/nikolaevv/airtraffic/internal/model"
+
+	"github.com/jackc/pgx/v5"
 	"github.com/pkg/errors"
 )
 
-func NewBookingRepository(db *pgx.Conn) *BookingRepository {
-	return &BookingRepository{db: db}
+func NewRepository(db *pgx.Conn) *Repository {
+	return &Repository{db: db}
 }
 
-type BookingRepository struct {
+type Repository struct {
 	db *pgx.Conn
 }
 
-func (b *BookingRepository) Get(ctx context.Context, id int) (model.Booking, error) {
+func (b *Repository) GetBooking(ctx context.Context, id int) (model.Booking, error) {
 	booking := model.Booking{}
 
 	query := `
@@ -59,7 +60,7 @@ func (b *BookingRepository) Get(ctx context.Context, id int) (model.Booking, err
 	return booking, nil
 }
 
-func (b *BookingRepository) getPassenger(ctx context.Context, id int) (model.Passenger, error) {
+func (b *Repository) getPassenger(ctx context.Context, id int) (model.Passenger, error) {
 	var passenger model.Passenger
 
 	var query = `
@@ -76,7 +77,7 @@ func (b *BookingRepository) getPassenger(ctx context.Context, id int) (model.Pas
 	return passenger, nil
 }
 
-func (b *BookingRepository) getFlights(ctx context.Context, ticketID int) ([]model.TicketFlight, error) {
+func (b *Repository) getFlights(ctx context.Context, ticketID int) ([]model.TicketFlight, error) {
 	var ticketFlights []model.TicketFlight
 
 	var query = `
@@ -120,7 +121,7 @@ func (b *BookingRepository) getFlights(ctx context.Context, ticketID int) ([]mod
 
 }
 
-func (b *BookingRepository) CreateBooking(
+func (b *Repository) CreateBooking(
 	ctx context.Context,
 	totalAmount float64,
 	tickets []model.Ticket,
@@ -167,7 +168,7 @@ func (b *BookingRepository) CreateBooking(
 	return booking, err
 }
 
-func (b *BookingRepository) createTicket(
+func (b *Repository) createTicket(
 	ctx context.Context,
 	tx pgx.Tx,
 	bookingID,
@@ -189,7 +190,7 @@ func (b *BookingRepository) createTicket(
 	return ticket, nil
 }
 
-func (b *BookingRepository) createTicketFlight(
+func (b *Repository) createTicketFlight(
 	ctx context.Context,
 	tx pgx.Tx,
 	ticketID,
@@ -213,4 +214,47 @@ func (b *BookingRepository) createTicketFlight(
 	}
 
 	return ticketFlight, nil
+}
+
+func (b *Repository) CreateBoardingPass(ctx context.Context, flightID, seatID int) (model.BoardingPass, error) {
+	boardingPass := model.BoardingPass{
+		Seat: model.Seat{
+			ID: seatID,
+		},
+	}
+
+	var query = `
+		insert into boarding_passes (flight_id, seat_id)
+		values ($1, $2)
+		returning id
+	`
+
+	err := b.db.QueryRow(ctx, query, flightID, seatID).Scan(&boardingPass.ID)
+
+	if err != nil {
+		return boardingPass, errors.Wrap(err, "query boarding pass")
+	}
+
+	return boardingPass, nil
+}
+
+func (f *Repository) GetFlights(ctx context.Context) ([]model.Flight, error) {
+	flights := make([]model.Flight, 0)
+
+	var query = "select id, scheduled_departure, scheduled_arrival, status, aircraft_id, actual_departure, actual_arrival from flights"
+	rows, err := f.db.Query(ctx, query)
+	if err != nil {
+		return nil, errors.Wrap(err, "query flight list")
+	}
+
+	for rows.Next() {
+		var flight model.Flight
+		if err := rows.Scan(&flight.ID, &flight.ScheduledDeparture, &flight.ScheduledArrival, &flight.Status, &flight.AircraftID, &flight.ActualDeparture, &flight.ActualArrival); err != nil {
+			return nil, errors.Wrap(err, "scan flight list")
+		}
+
+		flights = append(flights, flight)
+	}
+
+	return flights, nil
 }
