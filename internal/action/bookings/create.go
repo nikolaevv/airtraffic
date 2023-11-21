@@ -2,7 +2,9 @@ package bookings
 
 import (
 	"context"
+
 	"github.com/nikolaevv/airtraffic/internal/model"
+
 	"github.com/pkg/errors"
 )
 
@@ -30,7 +32,6 @@ func (act Create) Do(ctx context.Context, flightID int, passengers []model.Passe
 	tickets := make([]model.Ticket, 0, len(passengers))
 
 	for _, passenger := range passengers {
-
 		ticket := model.Ticket{
 			Passenger: passenger,
 			Flights: []model.TicketFlight{

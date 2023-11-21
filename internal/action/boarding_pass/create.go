@@ -2,6 +2,7 @@ package boarding_pass
 
 import (
 	"context"
+
 	"github.com/nikolaevv/airtraffic/internal/model"
 )
 
