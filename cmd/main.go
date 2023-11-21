@@ -2,8 +2,9 @@ package main
 
 import (
 	"flag"
-	"github.com/nikolaevv/airtraffic/internal/app"
 	"log"
+
+	"github.com/nikolaevv/airtraffic/internal/app"
 )
 
 var (
