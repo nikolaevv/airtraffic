@@ -31,7 +31,6 @@ func (r *Repository) GetBooking(ctx context.Context, id int) (model.Booking, err
 	if err != nil {
 		return booking, errors.Wrap(err, "query booking")
 	}
-	//defer rows.Close()
 
 	for rows.Next() {
 		var ticket model.Ticket
@@ -141,7 +140,7 @@ func (r *Repository) CreateBooking(
 
 	if err != nil {
 		_ = tx.Rollback(ctx)
-		return booking, errors.Wrap(err, "query create booking")
+		return booking, errors.Wrap(err, "scan insert booking")
 	}
 
 	for _, ticket := range tickets {
@@ -184,7 +183,7 @@ func (r *Repository) createTicket(
 
 	err := tx.QueryRow(ctx, query, bookingID, passengerID).Scan(&ticket.ID)
 	if err != nil {
-		return ticket, errors.Wrap(err, "query create ticket")
+		return ticket, errors.Wrap(err, "scan insert ticket")
 	}
 
 	return ticket, nil
@@ -210,7 +209,7 @@ func (r *Repository) createTicketFlight(
 	err := tx.QueryRow(ctx, query, ticketID, flightID, amount).Scan(&ticketFlight.ID)
 
 	if err != nil {
-		return ticketFlight, errors.Wrap(err, "query create ticket flight")
+		return ticketFlight, errors.Wrap(err, "scan insert ticket flight")
 	}
 
 	return ticketFlight, nil
@@ -232,7 +231,7 @@ func (r *Repository) CreateBoardingPass(ctx context.Context, flightID, seatID in
 	err := r.db.QueryRow(ctx, query, flightID, seatID).Scan(&boardingPass.ID)
 
 	if err != nil {
-		return boardingPass, errors.Wrap(err, "query boarding pass")
+		return boardingPass, errors.Wrap(err, "scan insert boarding pass")
 	}
 
 	return boardingPass, nil
@@ -241,16 +240,31 @@ func (r *Repository) CreateBoardingPass(ctx context.Context, flightID, seatID in
 func (r *Repository) GetFlights(ctx context.Context) ([]model.Flight, error) {
 	flights := make([]model.Flight, 0)
 
-	var query = "select id, scheduled_departure, scheduled_arrival, status, aircraft_id, actual_departure, actual_arrival from flights"
+	var query = `
+		select id, scheduled_departure, scheduled_arrival, status, aircraft_id, actual_departure, actual_arrival
+		from flights
+	`
+
 	rows, err := r.db.Query(ctx, query)
 	if err != nil {
-		return nil, errors.Wrap(err, "query flight list")
+		return nil, errors.Wrap(err, "query select flights")
 	}
 
 	for rows.Next() {
 		var flight model.Flight
-		if err := rows.Scan(&flight.ID, &flight.ScheduledDeparture, &flight.ScheduledArrival, &flight.Status, &flight.AircraftID, &flight.ActualDeparture, &flight.ActualArrival); err != nil {
-			return nil, errors.Wrap(err, "scan flight list")
+
+		err := rows.Scan(
+			&flight.ID,
+			&flight.ScheduledDeparture,
+			&flight.ScheduledArrival,
+			&flight.Status,
+			&flight.AircraftID,
+			&flight.ActualDeparture,
+			&flight.ActualArrival,
+		)
+
+		if err != nil {
+			return nil, errors.Wrap(err, "scan select flights")
 		}
 
 		flights = append(flights, flight)
