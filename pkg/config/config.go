@@ -1,8 +1,7 @@
 package config
 
 import (
-	"errors"
-
+	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 )
 
@@ -17,7 +16,7 @@ func Init(filename string) (*viper.Viper, error) {
 			return nil, errors.New("config file not found")
 		}
 
-		return nil, err
+		return nil, errors.Wrap(err, "read config file")
 	}
 
 	return v, nil

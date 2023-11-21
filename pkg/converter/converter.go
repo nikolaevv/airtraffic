@@ -1,15 +1,16 @@
 package converter
 
 import (
-	"github.com/jinzhu/copier"
 	"time"
+
+	"github.com/jinzhu/copier"
 )
 
 const (
 	defaultDateFormat = "2006-01-02 15:04:05"
 )
 
-var TimeConverter = copier.TypeConverter{
+var timeConverter = copier.TypeConverter{
 	SrcType: time.Time{},
 	DstType: "",
 	Fn: func(src interface{}) (dst interface{}, err error) {
@@ -21,6 +22,6 @@ var DefaultConverterOptions = copier.Option{
 	IgnoreEmpty: true,
 	DeepCopy:    true,
 	Converters: []copier.TypeConverter{
-		TimeConverter,
+		timeConverter,
 	},
 }
