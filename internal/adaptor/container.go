@@ -1,12 +1,14 @@
 package adaptor
 
 import (
-	"github.com/jackc/pgx/v5"
+	"log"
+
 	"github.com/nikolaevv/airtraffic/pkg/config"
 	"github.com/nikolaevv/airtraffic/pkg/db"
+
+	"github.com/jackc/pgx/v5"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
-	"log"
 )
 
 type Container struct {
