@@ -2,7 +2,7 @@ package grpc
 
 import (
 	"context"
-	"github.com/jinzhu/copier"
+
 	"github.com/nikolaevv/airtraffic/internal/action/boarding_pass"
 	"github.com/nikolaevv/airtraffic/internal/action/bookings"
 	"github.com/nikolaevv/airtraffic/internal/action/flights"
@@ -11,6 +11,7 @@ import (
 	"github.com/nikolaevv/airtraffic/internal/service/grpc/pb"
 	"github.com/nikolaevv/airtraffic/pkg/converter"
 
+	"github.com/jinzhu/copier"
 	"github.com/pkg/errors"
 )
 
