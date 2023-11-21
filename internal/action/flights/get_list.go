@@ -7,7 +7,7 @@ import (
 )
 
 type GetListAdaptor interface {
-	GetList(ctx context.Context) ([]model.Flight, error)
+	GetFlights(ctx context.Context) ([]model.Flight, error)
 }
 
 type GetList struct {
@@ -21,5 +21,5 @@ func NewGetList(repo GetListAdaptor) GetList {
 }
 
 func (act GetList) Do(ctx context.Context) ([]model.Flight, error) {
-	return act.repo.GetList(ctx)
+	return act.repo.GetFlights(ctx)
 }

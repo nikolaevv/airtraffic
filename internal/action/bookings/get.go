@@ -7,7 +7,7 @@ import (
 )
 
 type GetAdaptor interface {
-	Get(ctx context.Context, id int) (model.Booking, error)
+	GetBooking(ctx context.Context, id int) (model.Booking, error)
 }
 
 type Get struct {
@@ -21,5 +21,5 @@ func NewGet(repo GetAdaptor) Get {
 }
 
 func (act Get) Do(ctx context.Context, id int) (model.Booking, error) {
-	return act.repo.Get(ctx, id)
+	return act.repo.GetBooking(ctx, id)
 }

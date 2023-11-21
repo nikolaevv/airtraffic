@@ -6,7 +6,7 @@ import (
 )
 
 type CreateAdaptor interface {
-	Create(ctx context.Context, flightID, seatID int) (model.BoardingPass, error)
+	CreateBoardingPass(ctx context.Context, flightID, seatID int) (model.BoardingPass, error)
 }
 
 type Create struct {
@@ -20,5 +20,5 @@ func NewCreate(repo CreateAdaptor) Create {
 }
 
 func (act Create) Do(ctx context.Context, flightID, seatID int) (model.BoardingPass, error) {
-	return act.repo.Create(ctx, flightID, seatID)
+	return act.repo.CreateBoardingPass(ctx, flightID, seatID)
 }

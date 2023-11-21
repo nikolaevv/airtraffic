@@ -24,7 +24,7 @@ type Service struct {
 }
 
 func (s Service) GetFlights(ctx context.Context, _ *pb.GetFlightsRq) (*pb.GetFlightsRs, error) {
-	act := flights.NewGetList(s.cont.GetFlightRepository())
+	act := flights.NewGetList(s.cont.GetRepository())
 
 	flightsList, err := act.Do(ctx)
 	if err != nil {
@@ -41,7 +41,7 @@ func (s Service) GetFlights(ctx context.Context, _ *pb.GetFlightsRq) (*pb.GetFli
 }
 
 func (s Service) GetBooking(ctx context.Context, req *pb.GetBookingRq) (*pb.Booking, error) {
-	act := bookings.NewGet(s.cont.GetBookingRepository())
+	act := bookings.NewGet(s.cont.GetRepository())
 
 	booking, err := act.Do(ctx, int(req.Id))
 	if err != nil {
@@ -58,7 +58,7 @@ func (s Service) GetBooking(ctx context.Context, req *pb.GetBookingRq) (*pb.Book
 }
 
 func (s Service) CreateBoardingPass(ctx context.Context, req *pb.CreateBoardingPassRq) (*pb.BoardingPass, error) {
-	act := boarding_pass.NewCreate(s.cont.GetBoardingPassRepository())
+	act := boarding_pass.NewCreate(s.cont.GetRepository())
 
 	boardingPass, err := act.Do(ctx, int(req.TicketFlightId), int(req.SeatId))
 	if err != nil {
@@ -82,7 +82,7 @@ func (s Service) BookTickets(ctx context.Context, req *pb.BookTicketsRq) (*pb.Bo
 		return nil, errors.Wrap(err, "copy passengers")
 	}
 
-	act := bookings.NewCreate(s.cont.GetBookingRepository())
+	act := bookings.NewCreate(s.cont.GetRepository())
 
 	booking, err := act.Do(ctx, int(req.FlightId), passengers)
 	if err != nil {
