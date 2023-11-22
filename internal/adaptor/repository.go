@@ -32,63 +32,83 @@ func (r *Repository) GetBooking(ctx context.Context, id int) (booking model.Book
 	}
 
 	// Only ticket IDs are needed
+	ticketIDs, err := r.getTicketIDs(ctx, id)
+	if err != nil {
+		return booking, errors.Wrap(err, "get ticket ids")
+	}
+
+	ticketIDsFilter := r.buildTicketIDsFilter(ticketIDs)
+
+	passengers, err := r.getPassengers(ctx, ticketIDs, ticketIDsFilter)
+	if err != nil {
+		return booking, errors.Wrap(err, "get passengers")
+	}
+
+	ticketFlights, err := r.getTicketFlights(ctx, ticketIDs, ticketIDsFilter)
+	if err != nil {
+		return booking, errors.Wrap(err, "get ticket flights")
+	}
+
+	for _, ticketID := range ticketIDs {
+		booking.Tickets = append(booking.Tickets, model.Ticket{
+			ID:        ticketID,
+			Passenger: passengers[ticketID],
+			Flights:   ticketFlights[ticketID],
+		})
+	}
+
+	return booking, nil
+}
+
+func (r *Repository) getTicketIDs(ctx context.Context, bookingID int) ([]int, error) {
 	var ticketIDs []int
-	var ticketIDsStr []string
 
 	rows, err := r.db.Query(ctx, `
 		select id
 		from tickets
 		where booking_id = $1
-	`, id)
+	`, bookingID)
+
+	if err != nil {
+		return ticketIDs, errors.Wrap(err, "query ticket_ids")
+	}
 
 	for rows.Next() {
 		var ticketID int
 
 		err = rows.Scan(&ticketID)
 		if err != nil {
-			return booking, errors.Wrap(err, "scan ticket_ids")
+			return ticketIDs, errors.Wrap(err, "scan ticket_ids")
 		}
 
 		ticketIDs = append(ticketIDs, ticketID)
-		ticketIDsStr = append(ticketIDsStr, strconv.Itoa(ticketID))
 	}
 
-	if err != nil {
-		return booking, errors.Wrap(err, "query ticket_ids")
+	return ticketIDs, nil
+}
+
+func (r *Repository) buildTicketIDsFilter(ticketIDs []int) string {
+	var ticketIDsFilter []string
+
+	for _, ticketID := range ticketIDs {
+		ticketIDsFilter = append(ticketIDsFilter, strconv.Itoa(ticketID))
 	}
 
-	ticketIDsFilter := strings.Join(ticketIDsStr, ",")
+	return strings.Join(ticketIDsFilter, ",")
+}
 
-	// Выполняем второй запрос, чтобы получить информацию о пассажирах
-	passengers := make(map[int]model.Passenger, len(ticketIDs))
-	rows, err = r.db.Query(ctx, `
-		select id, fullname, email
-		from passengers
-		where id in ($1)
-	`, ticketIDsFilter)
-
-	if err != nil {
-		return booking, errors.Wrap(err, "query passengers")
-	}
-
-	for rows.Next() {
-		var p model.Passenger
-
-		err = rows.Scan(&p.ID, &p.Name, &p.Email)
-		if err != nil {
-			return booking, errors.Wrap(err, "scan passengers")
-		}
-
-		passengers[p.ID] = p
-	}
-
-	// Выполняем третий запрос, чтобы получить информацию о рейсах
+func (r *Repository) getTicketFlights(
+	ctx context.Context,
+	ticketIDs []int,
+	ticketIDsFilter string,
+) (map[int][]model.TicketFlight, error) {
 	flights := make(map[int][]model.TicketFlight, len(ticketIDs))
+
 	for _, ticketID := range ticketIDs {
 		flights[ticketID] = []model.TicketFlight{}
 	}
 
-	rows, err = r.db.Query(ctx, `
+	rows, err := r.db.Query(ctx, `
 		select t.id, t.amount, f.id, f.scheduled_departure, f.scheduled_arrival, f.departure_airport_id, f.arrival_airport_id, f.status, f.aircraft_id, f.actual_departure, f.actual_arrival
 		from ticket_flights t
 		left join flights f on t.flight_id = f.id
@@ -96,7 +116,7 @@ func (r *Repository) GetBooking(ctx context.Context, id int) (booking model.Book
 	`, ticketIDsFilter)
 
 	if err != nil {
-		return booking, errors.Wrap(err, "query flights")
+		return flights, errors.Wrap(err, "query flights")
 	}
 
 	for rows.Next() {
@@ -118,21 +138,44 @@ func (r *Repository) GetBooking(ctx context.Context, id int) (booking model.Book
 		)
 
 		if err != nil {
-			return booking, errors.Wrap(err, "scan flights")
+			return flights, errors.Wrap(err, "scan flights")
 		}
 
 		flights[ticketFlight.ID] = append(flights[ticketFlight.ID], ticketFlight)
 	}
 
-	for _, ticketID := range ticketIDs {
-		booking.Tickets = append(booking.Tickets, model.Ticket{
-			ID:        ticketID,
-			Passenger: passengers[ticketID],
-			Flights:   flights[ticketID],
-		})
+	return flights, nil
+}
+
+func (r *Repository) getPassengers(
+	ctx context.Context,
+	ticketIDs []int,
+	ticketIDsFilter string,
+) (map[int]model.Passenger, error) {
+	passengers := make(map[int]model.Passenger, len(ticketIDs))
+
+	rows, err := r.db.Query(ctx, `
+		select id, fullname, email
+		from passengers
+		where id in ($1)
+	`, ticketIDsFilter)
+
+	if err != nil {
+		return passengers, errors.Wrap(err, "query passengers")
 	}
 
-	return booking, nil
+	for rows.Next() {
+		var p model.Passenger
+
+		err = rows.Scan(&p.ID, &p.Name, &p.Email)
+		if err != nil {
+			return passengers, errors.Wrap(err, "scan passengers")
+		}
+
+		passengers[p.ID] = p
+	}
+
+	return passengers, nil
 }
 
 func (r *Repository) CreateBooking(
