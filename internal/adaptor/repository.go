@@ -2,6 +2,8 @@ package adaptor
 
 import (
 	"context"
+	"strconv"
+	"strings"
 
 	"github.com/nikolaevv/airtraffic/internal/model"
 
@@ -17,107 +19,120 @@ type Repository struct {
 	db *pgx.Conn
 }
 
-func (r *Repository) GetBooking(ctx context.Context, id int) (model.Booking, error) {
-	booking := model.Booking{}
-
-	query := `
-		select r.id, r.created_at, r.total_amount, t.id, t.passenger_id
-		from bookings r
-		left join tickets t on r.id = t.booking_id
-		where r.id = $1
-	`
-
-	rows, err := r.db.Query(ctx, query, id)
-	if err != nil {
-		return booking, errors.Wrap(err, "query booking")
-	}
-
-	for rows.Next() {
-		var ticket model.Ticket
-
-		err := rows.Scan(&booking.ID, &booking.CreatedAt, &booking.TotalAmount, &ticket.ID, &ticket.Passenger.ID)
-		if err != nil {
-			return booking, errors.Wrap(err, "scan booking")
-		}
-
-		booking.Tickets = append(booking.Tickets, ticket)
-	}
-
-	rows.Close()
-	for i, ticket := range booking.Tickets {
-		booking.Tickets[i].Passenger, err = r.getPassenger(ctx, ticket.Passenger.ID)
-		if err != nil {
-			return booking, errors.Wrap(err, "get passenger")
-		}
-
-		booking.Tickets[i].Flights, err = r.getFlights(ctx, ticket.ID)
-		if err != nil {
-			return booking, errors.Wrap(err, "get flights")
-		}
-	}
-
-	return booking, nil
-}
-
-func (r *Repository) getPassenger(ctx context.Context, id int) (model.Passenger, error) {
-	var passenger model.Passenger
-
-	var query = `
-		select id, fullname, email
-		from passengers
+func (r *Repository) GetBooking(ctx context.Context, id int) (booking model.Booking, err error) {
+	bookingQuery := `
+		select id, created_at, total_amount
+		from bookings
 		where id = $1
 	`
 
-	err := r.db.QueryRow(ctx, query, id).Scan(&passenger.ID, &passenger.Name, &passenger.Email)
+	err = r.db.QueryRow(ctx, bookingQuery, id).Scan(&booking.ID, &booking.CreatedAt, &booking.TotalAmount)
 	if err != nil {
-		return passenger, errors.Wrap(err, "query row passenger")
+		return booking, errors.Wrap(err, "query row booking")
 	}
 
-	return passenger, nil
-}
+	// Only ticket IDs are needed
+	var ticketIDs []int
+	var ticketIDsStr []string
 
-func (r *Repository) getFlights(ctx context.Context, ticketID int) ([]model.TicketFlight, error) {
-	var ticketFlights []model.TicketFlight
+	rows, err := r.db.Query(ctx, `
+		select id
+		from tickets
+		where booking_id = $1
+	`, id)
 
-	var query = `
+	for rows.Next() {
+		var ticketID int
+
+		err = rows.Scan(&ticketID)
+		if err != nil {
+			return booking, errors.Wrap(err, "scan ticket_ids")
+		}
+
+		ticketIDs = append(ticketIDs, ticketID)
+		ticketIDsStr = append(ticketIDsStr, strconv.Itoa(ticketID))
+	}
+
+	if err != nil {
+		return booking, errors.Wrap(err, "query ticket_ids")
+	}
+
+	ticketIDsFilter := strings.Join(ticketIDsStr, ",")
+
+	// Выполняем второй запрос, чтобы получить информацию о пассажирах
+	passengers := make(map[int]model.Passenger, len(ticketIDs))
+	rows, err = r.db.Query(ctx, `
+		select id, fullname, email
+		from passengers
+		where id in ($1)
+	`, ticketIDsFilter)
+
+	if err != nil {
+		return booking, errors.Wrap(err, "query passengers")
+	}
+
+	for rows.Next() {
+		var p model.Passenger
+
+		err = rows.Scan(&p.ID, &p.Name, &p.Email)
+		if err != nil {
+			return booking, errors.Wrap(err, "scan passengers")
+		}
+
+		passengers[p.ID] = p
+	}
+
+	// Выполняем третий запрос, чтобы получить информацию о рейсах
+	flights := make(map[int][]model.TicketFlight, len(ticketIDs))
+	for _, ticketID := range ticketIDs {
+		flights[ticketID] = []model.TicketFlight{}
+	}
+
+	rows, err = r.db.Query(ctx, `
 		select t.id, t.amount, f.id, f.scheduled_departure, f.scheduled_arrival, f.departure_airport_id, f.arrival_airport_id, f.status, f.aircraft_id, f.actual_departure, f.actual_arrival
 		from ticket_flights t
 		left join flights f on t.flight_id = f.id
-		where t.ticket_id = $1
-	`
+		where t.ticket_id in ($1)
+	`, ticketIDsFilter)
 
-	rows, err := r.db.Query(ctx, query, ticketID)
 	if err != nil {
-		return ticketFlights, errors.Wrap(err, "query flights")
+		return booking, errors.Wrap(err, "query flights")
 	}
-	defer rows.Close()
 
 	for rows.Next() {
 		var ticketFlight model.TicketFlight
+		var flight model.Flight
 
-		err := rows.Scan(
+		err = rows.Scan(
 			&ticketFlight.ID,
 			&ticketFlight.Amount,
-			&ticketFlight.Flight.ID,
-			&ticketFlight.Flight.ScheduledDeparture,
-			&ticketFlight.Flight.ScheduledArrival,
-			&ticketFlight.Flight.DepartureAirportID,
-			&ticketFlight.Flight.ArrivalAirportID,
-			&ticketFlight.Flight.Status,
-			&ticketFlight.Flight.AircraftID,
-			&ticketFlight.Flight.ActualDeparture,
-			&ticketFlight.Flight.ActualArrival,
+			&flight.ID,
+			&flight.ScheduledDeparture,
+			&flight.ScheduledArrival,
+			&flight.DepartureAirportID,
+			&flight.ArrivalAirportID,
+			&flight.Status,
+			&flight.AircraftID,
+			&flight.ActualDeparture,
+			&flight.ActualArrival,
 		)
 
 		if err != nil {
-			return ticketFlights, errors.Wrap(err, "scan flights")
+			return booking, errors.Wrap(err, "scan flights")
 		}
 
-		ticketFlights = append(ticketFlights, ticketFlight)
+		flights[ticketFlight.ID] = append(flights[ticketFlight.ID], ticketFlight)
 	}
 
-	return ticketFlights, nil
+	for _, ticketID := range ticketIDs {
+		booking.Tickets = append(booking.Tickets, model.Ticket{
+			ID:        ticketID,
+			Passenger: passengers[ticketID],
+			Flights:   flights[ticketID],
+		})
+	}
 
+	return booking, nil
 }
 
 func (r *Repository) CreateBooking(
