@@ -13,6 +13,7 @@ import (
 
 	"github.com/jinzhu/copier"
 	"github.com/pkg/errors"
+	"go.uber.org/zap"
 )
 
 func Init(cont *adaptor.Container) pb.AirTrafficServiceServer {
@@ -25,16 +26,19 @@ type Service struct {
 }
 
 func (s Service) GetFlights(ctx context.Context, _ *pb.GetFlightsRq) (*pb.GetFlightsRs, error) {
+	l := s.cont.GetLogger()
 	act := flights.NewGetList(s.cont.GetRepository())
 
 	flightsList, err := act.Do(ctx)
 	if err != nil {
+		l.Error("get flights list", zap.Error(err))
 		return nil, errors.Wrap(err, "get flights list")
 	}
 
 	res := &pb.GetFlightsRs{}
 	err = copier.CopyWithOption(&res.Flights, &flightsList, converter.DefaultConverterOptions)
 	if err != nil {
+		l.Error("copy flights list", zap.Error(err))
 		return nil, errors.Wrap(err, "copy flights list")
 	}
 
@@ -42,16 +46,19 @@ func (s Service) GetFlights(ctx context.Context, _ *pb.GetFlightsRq) (*pb.GetFli
 }
 
 func (s Service) GetBooking(ctx context.Context, req *pb.GetBookingRq) (*pb.Booking, error) {
+	l := s.cont.GetLogger()
 	act := bookings.NewGet(s.cont.GetRepository())
 
 	booking, err := act.Do(ctx, int(req.Id))
 	if err != nil {
+		l.Error("get booking by id", zap.Error(err))
 		return nil, errors.Wrap(err, "get booking by id")
 	}
 
 	res := &pb.Booking{}
 	err = copier.CopyWithOption(res, &booking, converter.DefaultConverterOptions)
 	if err != nil {
+		l.Error("copy booking", zap.Error(err))
 		return nil, errors.Wrap(err, "copy booking")
 	}
 
@@ -59,16 +66,19 @@ func (s Service) GetBooking(ctx context.Context, req *pb.GetBookingRq) (*pb.Book
 }
 
 func (s Service) CreateBoardingPass(ctx context.Context, req *pb.CreateBoardingPassRq) (*pb.BoardingPass, error) {
+	l := s.cont.GetLogger()
 	act := boarding_pass.NewCreate(s.cont.GetRepository())
 
 	boardingPass, err := act.Do(ctx, int(req.TicketFlightId), int(req.SeatId))
 	if err != nil {
+		l.Error("create boarding pass", zap.Error(err))
 		return nil, errors.Wrap(err, "create boarding pass")
 	}
 
 	res := &pb.BoardingPass{}
 	err = copier.CopyWithOption(res, &boardingPass, converter.DefaultConverterOptions)
 	if err != nil {
+		l.Error("copy boarding pass", zap.Error(err))
 		return nil, errors.Wrap(err, "copy boarding pass")
 	}
 
@@ -76,10 +86,12 @@ func (s Service) CreateBoardingPass(ctx context.Context, req *pb.CreateBoardingP
 }
 
 func (s Service) BookTickets(ctx context.Context, req *pb.BookTicketsRq) (*pb.Booking, error) {
+	l := s.cont.GetLogger()
 	passengers := make([]model.Passenger, 0, len(req.Passengers))
 
 	err := copier.Copy(&passengers, &req.Passengers)
 	if err != nil {
+		l.Error("copy passengers", zap.Error(err))
 		return nil, errors.Wrap(err, "copy passengers")
 	}
 
@@ -87,12 +99,14 @@ func (s Service) BookTickets(ctx context.Context, req *pb.BookTicketsRq) (*pb.Bo
 
 	booking, err := act.Do(ctx, int(req.FlightId), passengers)
 	if err != nil {
+		l.Error("create booking", zap.Error(err))
 		return nil, errors.Wrap(err, "create booking")
 	}
 
 	res := &pb.Booking{}
 	err = copier.CopyWithOption(res, &booking, converter.DefaultConverterOptions)
 	if err != nil {
+		l.Error("copy booking", zap.Error(err))
 		return nil, errors.Wrap(err, "copy booking")
 	}
 

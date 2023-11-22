@@ -9,11 +9,13 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
 )
 
 type Container struct {
-	cfg *viper.Viper
-	db  *pgx.Conn
+	cfg    *viper.Viper
+	db     *pgx.Conn
+	logger *zap.SugaredLogger
 }
 
 func NewContainer(configPath string) (*Container, error) {
@@ -29,9 +31,13 @@ func NewContainer(configPath string) (*Container, error) {
 		return nil, errors.Wrap(err, "init db")
 	}
 
+	logger, _ := zap.NewProduction()
+	defer logger.Sync()
+
 	return &Container{
-		cfg: cfg,
-		db:  database,
+		cfg:    cfg,
+		db:     database,
+		logger: logger.Sugar(),
 	}, nil
 }
 
@@ -41,4 +47,8 @@ func (c Container) GetConfig() *viper.Viper {
 
 func (c Container) GetRepository() *Repository {
 	return NewRepository(c.db)
+}
+
+func (c Container) GetLogger() *zap.SugaredLogger {
+	return c.logger
 }
