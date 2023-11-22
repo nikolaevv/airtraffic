@@ -33,7 +33,7 @@ func (s Service) GetFlights(ctx context.Context, _ *pb.GetFlightsRq) (*pb.GetFli
 	}
 
 	res := &pb.GetFlightsRs{}
-	err = copier.CopyWithOption(res, &flightsList, converter.DefaultConverterOptions)
+	err = copier.CopyWithOption(&res.Flights, &flightsList, converter.DefaultConverterOptions)
 	if err != nil {
 		return nil, errors.Wrap(err, "copy flights list")
 	}
