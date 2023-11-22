@@ -165,14 +165,12 @@ func (r *Repository) getPassengers(
 	}
 
 	for rows.Next() {
-		var p model.Passenger
-
-		err = rows.Scan(&p.ID, &p.Name, &p.Email)
+		passenger, err := pgx.RowToStructByName[model.Passenger](rows)
 		if err != nil {
 			return passengers, errors.Wrap(err, "scan passengers")
 		}
 
-		passengers[p.ID] = p
+		passengers[passenger.ID] = passenger
 	}
 
 	return passengers, nil
@@ -299,7 +297,7 @@ func (r *Repository) GetFlights(ctx context.Context) ([]model.Flight, error) {
 	flights := make([]model.Flight, 0)
 
 	var query = `
-		select id, scheduled_departure, scheduled_arrival, status, aircraft_id, actual_departure, actual_arrival
+		select id, scheduled_departure, scheduled_arrival, departure_airport_id, arrival_airport_id, status, aircraft_id, actual_departure, actual_arrival
 		from flights
 	`
 
@@ -309,17 +307,7 @@ func (r *Repository) GetFlights(ctx context.Context) ([]model.Flight, error) {
 	}
 
 	for rows.Next() {
-		var flight model.Flight
-
-		err := rows.Scan(
-			&flight.ID,
-			&flight.ScheduledDeparture,
-			&flight.ScheduledArrival,
-			&flight.Status,
-			&flight.AircraftID,
-			&flight.ActualDeparture,
-			&flight.ActualArrival,
-		)
+		flight, err := pgx.RowToStructByName[model.Flight](rows)
 
 		if err != nil {
 			return nil, errors.Wrap(err, "scan select flights")
