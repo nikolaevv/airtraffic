@@ -6,6 +6,8 @@ import (
 	"github.com/nikolaevv/airtraffic/internal/model"
 )
 
+//go:generate mockgen -source=get.go -destination=mock/get_mock.go -package=mock
+
 type GetAdaptor interface {
 	GetBooking(ctx context.Context, id int) (model.Booking, error)
 }

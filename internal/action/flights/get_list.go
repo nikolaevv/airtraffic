@@ -6,6 +6,8 @@ import (
 	"github.com/nikolaevv/airtraffic/internal/model"
 )
 
+//go:generate mockgen -source=get_list.go -destination=mock/get_list_mock.go -package=mock
+
 type GetListAdaptor interface {
 	GetFlights(ctx context.Context) ([]model.Flight, error)
 }

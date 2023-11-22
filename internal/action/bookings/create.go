@@ -8,6 +8,8 @@ import (
 	"github.com/pkg/errors"
 )
 
+//go:generate mockgen -source=create.go -destination=mock/create_mock.go -package=mock
+
 const (
 	singleTicketPrice = 100
 )

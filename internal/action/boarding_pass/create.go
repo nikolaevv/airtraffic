@@ -6,6 +6,8 @@ import (
 	"github.com/nikolaevv/airtraffic/internal/model"
 )
 
+//go:generate mockgen -source=create.go -destination=mock/create_mock.go -package=mock
+
 type CreateAdaptor interface {
 	CreateBoardingPass(ctx context.Context, flightID, seatID int) (model.BoardingPass, error)
 }

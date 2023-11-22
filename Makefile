@@ -6,3 +6,9 @@ lint:
 
 run:
 	docker-compose up --build
+
+gen:
+	go generate ./internal/...
+
+test:
+	CGO_ENABLED=1 go test -p 1 -race -cover -count=1 -coverprofile=.coverprofile -coverpkg=./... ./internal/...
