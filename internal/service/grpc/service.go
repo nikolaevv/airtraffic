@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"context"
+	"time"
 
 	"github.com/nikolaevv/airtraffic/internal/action/boarding_pass"
 	"github.com/nikolaevv/airtraffic/internal/action/bookings"
@@ -16,6 +17,10 @@ import (
 	"go.uber.org/zap"
 )
 
+const (
+	dateFormat = "2006-01-02"
+)
+
 func Init(cont *adaptor.Container) pb.AirTrafficServiceServer {
 	return &Service{cont: cont}
 }
@@ -25,11 +30,17 @@ type Service struct {
 	cont *adaptor.Container
 }
 
-func (s Service) GetFlights(ctx context.Context, _ *pb.GetFlightsRq) (*pb.GetFlightsRs, error) {
+func (s Service) GetFlights(ctx context.Context, req *pb.GetFlightsRq) (*pb.GetFlightsRs, error) {
 	l := s.cont.GetLogger()
 	act := flights.NewGetList(s.cont.GetRepository())
 
-	flightsList, err := act.Do(ctx)
+	date, err := time.Parse(dateFormat, req.Date)
+	if err != nil {
+		l.Error("parse date", zap.Error(err))
+		return nil, errors.Wrap(err, "parse date")
+	}
+
+	flightsList, err := act.Do(ctx, date)
 	if err != nil {
 		l.Error("get flights list", zap.Error(err))
 		return nil, errors.Wrap(err, "get flights list")

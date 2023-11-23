@@ -4,6 +4,7 @@ import (
 	"context"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/nikolaevv/airtraffic/internal/model"
 
@@ -293,15 +294,16 @@ func (r *Repository) CreateBoardingPass(ctx context.Context, flightID, seatID in
 	return boardingPass, nil
 }
 
-func (r *Repository) GetFlights(ctx context.Context) ([]model.Flight, error) {
+func (r *Repository) GetFlights(ctx context.Context, date time.Time) ([]model.Flight, error) {
 	flights := make([]model.Flight, 0)
 
 	var query = `
 		select id, scheduled_departure, scheduled_arrival, departure_airport_id, arrival_airport_id, status, aircraft_id, actual_departure, actual_arrival
 		from flights
+		where scheduled_departure::date = $1
 	`
 
-	rows, err := r.db.Query(ctx, query)
+	rows, err := r.db.Query(ctx, query, date)
 	if err != nil {
 		return nil, errors.Wrap(err, "query select flights")
 	}
